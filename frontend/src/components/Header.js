@@ -8,6 +8,7 @@ const Header = () => {
       <Navbar className='header' variant='dark' expand='lg'>
         <LinkContainer to='/'>
           <Navbar.Brand>
+            {/* <i class='fas fa-store'></i> Antiquepox */}
             <img src='./images/logo1.png' className='logo' alt='logo'></img>
           </Navbar.Brand>
         </LinkContainer>
