@@ -1,15 +1,18 @@
 import React from 'react';
+
 import { useParams } from 'react-router-dom';
 
-function ProductScreen() {
+export default function Product() {
   const params = useParams();
   const { slug } = params;
 
   return (
-    <div>
-      <h1>{slug}</h1>
+    <div className='content'>
+      <br />
+      <h1 className='box'>Products</h1>
+      <div className='box'>
+        <h1>{slug}</h1>
+      </div>
     </div>
   );
 }
-
-export default ProductScreen;
