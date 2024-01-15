@@ -1,10 +1,14 @@
 import React from 'react';
 import { Row, Col, Card, Image } from 'react-bootstrap';
+import { Helmet } from 'react-helmet-async';
 
 export default function About() {
   return (
     <>
       <div className='content'>
+        <Helmet>
+          <title>About Antiquepox</title>
+        </Helmet>
         <br />
         <Row>
           <Col md={12}>

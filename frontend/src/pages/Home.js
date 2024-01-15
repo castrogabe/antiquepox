@@ -1,69 +1,93 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { Row, Col } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
+import Product from '../components/Product';
 import axios from 'axios';
+import logger from 'use-reducer-logger';
+import LoadingBox from '../components/LoadingBox';
+import MessageBox from '../components/MessageBox';
 
-// HomeScreen component that displays featured products
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'FETCH_REQUEST':
+      return { ...state, loading: true };
+    case 'FETCH_SUCCESS':
+      return { ...state, products: action.payload, loading: false };
+    case 'FETCH_FAIL':
+      return { ...state, loading: false, error: action.payload };
+    default:
+      return state;
+  }
+};
+
 export default function Home() {
-  // State to hold the products data
-  const [products, setProducts] = useState([]);
+  const [{ loading, error, products }, dispatch] = useReducer(logger(reducer), {
+    products: [],
+    loading: true,
+    error: '',
+  });
 
-  // useEffect hook to fetch data when the component mounts
   useEffect(() => {
-    // Fetch data from the server using axios
     const fetchData = async () => {
+      dispatch({ type: 'FETCH_REQUEST' });
       try {
         const result = await axios.get('/api/products');
-        // Update the state with the fetched data
-        setProducts(result.data);
-      } catch (error) {
-        // Handle errors if any
-        console.error('Error fetching data:', error.message);
+        dispatch({ type: 'FETCH_SUCCESS', payload: result.data });
+      } catch (err) {
+        dispatch({ type: 'FETCH_FAIL', payload: err.message });
       }
     };
-    // Call the fetchData function
     fetchData();
-  }, []); // The empty dependency array ensures this effect runs only once on mount
+  }, []);
 
   return (
     <>
       <div className='content'>
+        <Helmet>
+          <title>Antiquepox</title>
+        </Helmet>
         <br />
         <h1 className='box'>Featured Products</h1>
         <div className='box'>
-          <h4 className='mt-3'>
-            ~ All Antiques, Art, and Collectibles are in good condition and sold
-            as is. ~
-          </h4>
+          <p>
+            ~ Explore our virtual antique haven! We take joy in curating an
+            exclusive collection of unique and timeless pieces that capture the
+            essence of history. Fueled by our passion for antiques, we
+            tirelessly search for treasures with stories to tell. Each item is
+            handpicked for its exceptional quality and enduring value. Welcome
+            to a digital journey through the beauty of the past! ~
+          </p>
         </div>
         <br />
-      </div>
 
-      {/* Products section, product inside products */}
-      <Row>
-        <Col>
-          <div className='products'>
-            {/* Map through the products and render each product */}
-            {products.map((product) => (
-              <div className='product' key={product.slug}>
-                {/* Link to the individual product page */}
-                <Link to={`/product/${product.slug}`}>
-                  <img src={product.image} alt={product.name} />
-                </Link>
-                <div className='product-info'>
-                  <Link to={`/product/${product.slug}`}>
-                    <p>{product.name}</p>
-                  </Link>
-                  <p>
-                    <strong>${product.price}</strong>
-                  </p>
-                  <button>Add to cart</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Col>
-      </Row>
+        {/* Products section, product inside products */}
+        <Row>
+          <Col>
+            {' '}
+            <div className='products'>
+              {loading ? (
+                <LoadingBox />
+              ) : error ? (
+                <MessageBox variant='danger'>{error}</MessageBox>
+              ) : (
+                <Row>
+                  {products.map((product) => (
+                    <Col
+                      key={product.slug}
+                      sm={6}
+                      md={4}
+                      lg={3}
+                      className='mb-3'
+                    >
+                      <Product product={product}></Product>
+                    </Col>
+                  ))}
+                </Row>
+              )}
+            </div>
+          </Col>
+        </Row>
+      </div>
     </>
   );
 }
