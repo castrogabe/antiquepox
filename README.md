@@ -81,7 +81,7 @@ Git: https://git-scm.com/ follow the steps to install on your system
 Accounts needed
 Canva: https://www.canva.com/ we will use this to create our logo and jumbotron
 Express: https://expressjs.com/ we will use to build our backend API application
-Mongodb: https://www.mongodb.com/ to save and retrieve data from the database
+Mongodb: https://www.mongodb.com to save and retrieve data from the database
 Cloudinary: https://cloudinary.com/ to save our images
 JWT: https://jwt.io/ for user auth
 PayPal Developer: https://developer.paypal.com/home to make payments for PayPal orders
@@ -157,10 +157,6 @@ BACKEND
 data.js > added
 .gitiginore > added
 server.js > added
-. create route for api/products
-. update and fetch products from backend using axios
-. get state from useReducer
-. update HomeScreen.js
 
 FRONTEND
 .folder: pages
@@ -168,36 +164,43 @@ Gallery.js > updated with listed products
 Home.js > updated
 Product.js > updated with listed products
 
-# Fourth Commit by Reducer Hook, Helmet, Rating (Lesson 4)
+1. create route for api/products
+2. update and fetch products from backend using axios
+3. get state from useReducer
+4. update HomeScreen.js
+5. git commit
+
+# Fifth Commit, Jumbotron, Cart, Signin,.env, JWT, MongoDB (Lesson 5)
 
 BACKEND
-server.js > update to get to products/slug
+server.js > updated with MongoDB, routes, models
+.env > add JWT_SECRET, MongoDB connection (create mongodb connection string)
+.env.example > added
+utils.js > added for jsonwebtoken
+
+folder: models added
+productModel.js > added
+userModel.js > added
+
+folder: routes added
+productRoutes.js > added
+seedRoutes.js > added
+userRoutes.js > added
 
 FRONTEND
-index.js > update with HelmetProvider
-{}package.json > update DevDependencies with: "@babel/plugin-proposal-private-property-in-object": "^1.0.0"
-
 folder: components
-LoadingBox.js (spinner) > added
-MessageBox.js > added
-Product.js > added
-Rating.js > added
+Product.js > updated to ProductCard.js, css for Card.Title var(--dark)
+Header.js > updated with Cart, Signin User dropdown
+Jumbotron > added with typewriter effect
 
 folder: pages
-AboutUs.js > updated
-Home.js > updated
-Product.js > updated
-Rating.js > added
+Cart.js > added
+Signin.js > added
+Home.js > updated for 6 col and Jumbotron
+App.js > updated with Signin and Cart pages
+index.js > updated with StoreProvider
+index.css > uncomment css lines 65, and 522
+Store.js > added
+.gitignore > updated with .env (line 4) so we don't push our .env to github
 
-. define reducer
-. update fetch data, get state from useReducer in Home
-. create product and rating components
-. Use rating in product component
-. Add Helmet to pages and index.js
-. Jumbotron with typewriter effect in Home and components add Jumbotron.js
-. Create Product details
-. Create loading component
-. Create message component
-. Add React spinner in LoadingBox
-. utils.js to define error function
-. update server.js in backend
+git 5th commit

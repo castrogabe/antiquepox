@@ -6,7 +6,9 @@ import Header from './components/Header';
 import BottomHeader from './components/BottomHeader';
 import BottomFooter from './components/BottomFooter';
 import Footer from './components/Footer';
-import Product from './pages/Product';
+import ProductMag from './pages/ProductMag';
+import Cart from './pages/Cart';
+import Signin from './pages/Signin';
 
 function App() {
   return (
@@ -16,9 +18,11 @@ function App() {
       <main className='mt-0'>
         <Routes>
           <Route path='/' element={<Home />} />
-          <Route path='/product/:slug' element={<Product />} />
+          <Route path='/product/:slug' element={<ProductMag />} />
+          <Route path='/cart' element={<Cart />} />
           <Route path='/about' element={<AboutUs />} />
           <Route path='/gallery' element={<Gallery />} />
+          <Route path='/signin' element={<Signin />} />
         </Routes>
       </main>
       <Footer />
