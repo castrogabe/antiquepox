@@ -19,6 +19,12 @@ import ShippingAddress from './pages/ShippingAddress';
 import Signin from './pages/Signin';
 import Signup from './pages/Signup';
 
+// lesson 7
+import Profile from './pages/Profile';
+import PlaceOrder from './pages/PlaceOrder';
+import OrderDetails from './pages/OrderDetails';
+import OrderHistory from './pages/OrderHistory';
+
 function App() {
   return (
     <BrowserRouter>
@@ -36,6 +42,12 @@ function App() {
           <Route path='/shipping' element={<ShippingAddress />} />
           <Route path='/payment' element={<PaymentMethod />} />
           <Route path='/signup' element={<Signup />} />
+
+          {/* Lesson 7 screens */}
+          <Route path='/profile' element={<Profile />} />
+          <Route path='/placeorder' element={<PlaceOrder />} />
+          <Route path='/order/:id' element={<OrderDetails />} />
+          <Route path='/orderHistory' element={<OrderHistory />} />
         </Routes>
       </main>
       <Footer />
