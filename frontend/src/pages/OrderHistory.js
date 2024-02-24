@@ -8,7 +8,6 @@ import { Store } from '../Store';
 import { getError } from '../utils';
 import { Button, Table } from 'react-bootstrap/esm';
 
-// Reducer function to manage state transitions
 const reducer = (state, action) => {
   switch (action.type) {
     case 'FETCH_REQUEST':
@@ -22,31 +21,24 @@ const reducer = (state, action) => {
   }
 };
 
-// Component for displaying order history
 export default function OrderHistory() {
   const { state } = useContext(Store);
   const { userInfo } = state;
   const navigate = useNavigate();
-
-  // Initial state and reducer for managing state transitions
   const [{ loading, error, orders }, dispatch] = useReducer(reducer, {
     loading: true,
     error: '',
   });
 
-  // Fetch order history data when the component mounts
   useEffect(() => {
     const fetchData = async () => {
       dispatch({ type: 'FETCH_REQUEST' });
       try {
-        // Fetch order history data from the server
         const { data } = await axios.get(`/api/orders/mine`, {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         });
-        // Update state with the fetched data
         dispatch({ type: 'FETCH_SUCCESS', payload: data });
       } catch (error) {
-        // Handle fetch error
         dispatch({
           type: 'FETCH_FAIL',
           payload: getError(error),

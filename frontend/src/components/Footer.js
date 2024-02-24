@@ -51,6 +51,12 @@ const Footer = () => {
                   <i className='fa fa-info'></i> Antique Gallery
                 </Link>
               </li>
+              <li>
+                <Link to='/design' className='email'>
+                  {' '}
+                  <i className='fa fa-info'></i> Design
+                </Link>
+              </li>
             </ul>
           </div>
         </Col>
@@ -61,6 +67,14 @@ const Footer = () => {
               <i className='fa fa-envelope'></i> Contact Us
             </a>
           </div>
+          <ul className='list-unstyled'>
+            <li>
+              <Link to='/askedQuestions' className='email'>
+                {' '}
+                <i className='fa fa-info'></i> FAQ
+              </Link>
+            </li>
+          </ul>
         </Col>
       </Row>
 
