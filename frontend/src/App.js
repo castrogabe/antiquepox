@@ -1,36 +1,40 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 
-// COMPONENTS
+// components
 import Header from './components/Header';
 import BottomHeader from './components/BottomHeader';
 import Footer from './components/Footer';
 import BottomFooter from './components/BottomFooter';
-import AdminRoute from './components/AdminRoute'; // lesson 8
-import ProtectedRoute from './components/ProtectedRoute'; // lesson 8
+import AdminRoute from './components/AdminRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 
-// ADMIN PAGES
-import Dashboard from './pages/Dashboard'; // lesson 8
-import ProductList from './pages/ProductList'; // lesson 8
+// admin pages
+import Dashboard from './pages/Dashboard';
+import ProductList from './pages/ProductList';
 
-// PAGES
+// pages
 import AboutUs from './pages/AboutUs';
-import Cart from './pages/Cart'; // step 1
+import Cart from './pages/Cart';
 import Gallery from './pages/Gallery';
 import Home from './pages/Home';
 import OrderHistory from './pages/OrderHistory';
 import OrderDetails from './pages/OrderDetails';
-import PaymentMethod from './pages/PaymentMethod'; // step 3
-import PlaceOrder from './pages/PlaceOrder'; // step 4
+import PaymentMethod from './pages/PaymentMethod';
+import PlaceOrder from './pages/PlaceOrder';
 import ProductMag from './pages/ProductMag';
 import Profile from './pages/Profile';
-import ShippingAddress from './pages/ShippingAddress'; // step 2
+import ShippingAddress from './pages/ShippingAddress';
 import Signin from './pages/Signin';
 import Signup from './pages/Signup';
+import AskedQuestions from './pages/AskedQuestions';
+import Design from './pages/Design';
+import Search from './pages/Search';
 
-import AskedQuestions from './pages/AskedQuestions'; // lesson 8
-import Design from './pages/Design'; // lesson 8
-import Search from './pages/Search'; // lesson 8
+import ProductEdit from './pages/ProductEdit'; // lesson 9
+import OrderList from './pages/OrderList'; // lesson 9
+import UserList from './pages/UserList'; // lesson 9
+import UserEdit from './pages/UserEdit'; // lesson 9
 
 function App() {
   return (
@@ -39,21 +43,19 @@ function App() {
       <BottomHeader />
       <main className='mt-0'>
         <Routes>
-          <Route path='/' element={<Home />} />
-          <Route path='/product/:slug' element={<ProductMag />} />
           <Route path='/about' element={<AboutUs />} />
+          <Route path='/askedQuestions' element={<AskedQuestions />} />
           <Route path='/cart' element={<Cart />} />
+          <Route path='/design' element={<Design />} />
+          <Route path='/' element={<Home />} />
           <Route path='/gallery' element={<Gallery />} />
+          <Route path='/payment' element={<PaymentMethod />} />
+          <Route path='/placeorder' element={<PlaceOrder />} />
+          <Route path='/product/:slug' element={<ProductMag />} />
+          <Route path='/search' element={<Search />} />
+          <Route path='/shipping' element={<ShippingAddress />} />
           <Route path='/signin' element={<Signin />} />
           <Route path='/signup' element={<Signup />} />
-          <Route path='/placeorder' element={<PlaceOrder />} />
-          <Route path='/shipping' element={<ShippingAddress />} />
-          <Route path='/payment' element={<PaymentMethod />} />
-
-          {/* lesson 8 */}
-          <Route path='/askedQuestions' element={<AskedQuestions />} />
-          <Route path='/design' element={<Design />} />
-          <Route path='/search' element={<Search />} />
 
           {/* Protected Routes */}
           <Route
@@ -95,6 +97,40 @@ function App() {
             element={
               <AdminRoute>
                 <ProductList />
+              </AdminRoute>
+            }
+          />
+
+          {/* lesson 9 */}
+          <Route
+            path='/admin/orders'
+            element={
+              <AdminRoute>
+                <OrderList />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path='/admin/users'
+            element={
+              <AdminRoute>
+                <UserList />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path='/admin/product/:id'
+            element={
+              <AdminRoute>
+                <ProductEdit />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path='/admin/user/:id'
+            element={
+              <AdminRoute>
+                <UserEdit />
               </AdminRoute>
             }
           />

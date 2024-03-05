@@ -85,12 +85,10 @@ export default function OrderDetails() {
     });
   }
 
-  // Function to handle PayPal payment error
   function onError(err) {
     toast.error(getError(err));
   }
 
-  // Fetch order details and load PayPal script on component mount
   useEffect(() => {
     const fetchOrder = async () => {
       try {
@@ -107,11 +105,8 @@ export default function OrderDetails() {
     if (!userInfo) {
       return navigate('/login');
     }
-
-    // If order details are not available, or payment is successful, or order ID is different,
     if (!order._id || successPay || (order._id && order._id !== orderId)) {
       fetchOrder();
-
       if (successPay) {
         dispatch({ type: 'PAY_RESET' });
       }
@@ -145,7 +140,6 @@ export default function OrderDetails() {
       </Helmet>
       <br />
       <h1 className='box'>Order Details | Order id: {orderId}</h1>
-
       <Row>
         <Col md={8}>
           <Card className='box'>

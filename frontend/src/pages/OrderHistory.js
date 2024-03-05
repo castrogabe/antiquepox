@@ -63,11 +63,8 @@ export default function OrderHistory() {
         <title>Order History</title>
       </Helmet>
       <br />
+      <h4 className='box'>{userInfo.name}'s Order History</h4>
       <div className='box'>
-        <h4>{userInfo.name}'s Order History</h4>
-        <p className='lead'>
-          Your orders on one place, click details for more information.
-        </p>
         {loading ? (
           <LoadingBox></LoadingBox>
         ) : error ? (

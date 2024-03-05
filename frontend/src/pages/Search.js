@@ -2,16 +2,15 @@ import React, { useEffect, useReducer, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { getError } from '../utils'; // Utility function to handle errors
-import { Helmet } from 'react-helmet-async'; // Asynchronous Helmet component for managing document head metadata
-import { Row, Col, Button } from 'react-bootstrap'; // Bootstrap components
-import Rating from '../components/Rating'; // Custom Rating component
-import LoadingBox from '../components/LoadingBox'; // Loading indicator component
-import MessageBox from '../components/MessageBox'; // Message box component
-import ProductCard from '../components/ProductCard'; // Custom ProductCard component
-import Pagination from '../components/Pagination'; // Pagination component
+import { getError } from '../utils';
+import { Helmet } from 'react-helmet-async';
+import { Row, Col, Button } from 'react-bootstrap';
+import Rating from '../components/Rating';
+import LoadingBox from '../components/LoadingBox';
+import MessageBox from '../components/MessageBox';
+import ProductCard from '../components/ProductCard';
+import Pagination from '../components/Pagination';
 
-// Reducer function to manage state
 const reducer = (state, action) => {
   switch (action.type) {
     case 'FETCH_REQUEST':
@@ -32,7 +31,6 @@ const reducer = (state, action) => {
   }
 };
 
-// Array of price ranges
 const prices = [
   {
     name: '$1 to $50',
@@ -48,7 +46,6 @@ const prices = [
   },
 ];
 
-// Array of rating filters
 export const ratings = [
   {
     name: '4 stars & up',
@@ -68,26 +65,23 @@ export const ratings = [
   },
 ];
 
-// Search component
 export default function Search() {
   const navigate = useNavigate();
   const { search } = useLocation();
-  const sp = new URLSearchParams(search); // Parse search parameters
-  const category = sp.get('category') || 'all'; // Get category from search params or default to 'all'
-  const query = sp.get('query') || 'all'; // Get query from search params or default to 'all'
-  const price = sp.get('price') || 'all'; // Get price from search params or default to 'all'
-  const rating = sp.get('rating') || 'all'; // Get rating from search params or default to 'all'
-  const order = sp.get('order') || 'newest'; // Get order from search params or default to 'newest'
-  const page = sp.get('page') || 1; // Get page from search params or default to 1
+  const sp = new URLSearchParams(search);
+  const category = sp.get('category') || 'all';
+  const query = sp.get('query') || 'all';
+  const price = sp.get('price') || 'all';
+  const rating = sp.get('rating') || 'all';
+  const order = sp.get('order') || 'newest';
+  const page = sp.get('page') || 1;
 
-  // Reducer hook to manage state
   const [{ loading, error, products, pages, countProducts }, dispatch] =
     useReducer(reducer, {
       loading: true,
       error: '',
     });
 
-  // Fetch products based on search parameters
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -105,9 +99,7 @@ export default function Search() {
     fetchData();
   }, [category, error, order, page, price, query, rating]);
 
-  // State hook to manage categories
   const [categories, setCategories] = useState([]);
-  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -120,7 +112,6 @@ export default function Search() {
     fetchCategories();
   }, [dispatch]);
 
-  // Function to generate filter URL
   const getFilterUrl = (filter) => {
     const filterPage = filter.page || page;
     const filterCategory = filter.category || category;
@@ -138,13 +129,11 @@ export default function Search() {
       </Helmet>
 
       <Row className='mt-3'>
-        {/* Sidebar */}
         <Col md={3} className='search'>
           <div>
             <h3>Categories</h3>
             <ul>
               <li>
-                {/* Link to show all categories */}
                 <Link
                   className={'all' === category ? 'text-bold' : ''}
                   to={getFilterUrl({ category: 'all' })}
@@ -153,7 +142,6 @@ export default function Search() {
                 </Link>
               </li>
 
-              {/* Display categories */}
               {categories.map((c) => (
                 <li key={c}>
                   <Link
@@ -167,7 +155,6 @@ export default function Search() {
             </ul>
           </div>
 
-          {/* Price filter */}
           <div>
             <h3>Price</h3>
             <ul>
@@ -179,7 +166,6 @@ export default function Search() {
                   Any
                 </Link>
               </li>
-              {/* Display price ranges */}
               {prices.map((p) => (
                 <li key={p.value}>
                   <Link
@@ -193,11 +179,9 @@ export default function Search() {
             </ul>
           </div>
 
-          {/* Rating filter */}
           <div>
             <h3>Avg. Customer Review</h3>
             <ul>
-              {/* Display rating options */}
               {ratings.map((r) => (
                 <li key={r.name}>
                   <Link
@@ -208,7 +192,6 @@ export default function Search() {
                   </Link>
                 </li>
               ))}
-              {/* Link to reset rating filter */}
               <li>
                 <Link
                   to={getFilterUrl({ rating: 'all' })}
@@ -221,16 +204,13 @@ export default function Search() {
           </div>
         </Col>
 
-        {/* Main Content */}
         <Col md={9}>
-          {/* Loading or error message */}
           {loading ? (
             <LoadingBox />
           ) : error ? (
             <MessageBox variant='danger'>{error}</MessageBox>
           ) : (
             <>
-              {/* Result count and filter display */}
               <Row className='justify-content-between mb-3'>
                 <Col md={6}>
                   <div>
@@ -253,7 +233,6 @@ export default function Search() {
                   </div>
                 </Col>
 
-                {/* Sorting options */}
                 <Col className='text-end'>
                   Sort by{' '}
                   <select
@@ -270,7 +249,6 @@ export default function Search() {
                 </Col>
               </Row>
 
-              {/* Product listing */}
               {products.length === 0 && (
                 <MessageBox>No Product Found</MessageBox>
               )}

@@ -42,7 +42,8 @@ function Header() {
           <ToastContainer position='bottom-center' limit={1} />
           <LinkContainer to='/'>
             <Navbar.Brand className='me-auto'>
-              <img src='./images/logo1.png' alt='logo'></img>
+              {/* fix logo from breaking by removing . */}
+              <img src='/images/logo1.png' alt='logo'></img>
             </Navbar.Brand>
           </LinkContainer>
           <Navbar.Toggle aria-controls='basic-navbar-nav' />
@@ -97,7 +98,6 @@ function Header() {
                 </Link>
               )}
 
-              {/* Admin lesson 8 */}
               {userInfo && userInfo.isAdmin && (
                 <NavDropdown title='Admin' id='admin-nav-dropdown'>
                   <LinkContainer to='/admin/dashboard'>
