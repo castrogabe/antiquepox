@@ -53,7 +53,7 @@ export default function Signup() {
       </Helmet>
       <br />
       <Row>
-        <h1 className='box'>Sign Up</h1>
+        <h4 className='box'>Sign Up</h4>
         <Col md={6}>
           <Form onSubmit={submitHandler} className='box'>
             <Form.Group className='mb-3' controlId='name'>
@@ -75,6 +75,7 @@ export default function Signup() {
               <Form.Label>Password</Form.Label>
               <Form.Control
                 type='password'
+                placeholder='Example: minimum length, uppercase, lowercase, digit, and special character' // lesson 10
                 required
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -82,6 +83,7 @@ export default function Signup() {
                 <Form.Label>Confirm Password</Form.Label>
                 <Form.Control
                   type='password'
+                  placeholder='Example: minimum length, uppercase, lowercase, digit, and special character' // lesson 10
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />

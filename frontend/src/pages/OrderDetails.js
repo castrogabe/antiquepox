@@ -1,15 +1,17 @@
 import axios from 'axios';
-import React, { useContext, useEffect, useReducer } from 'react';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Row, Card, Col, ListGroup } from 'react-bootstrap';
+import { Button, Col, Row, ListGroup, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import { Store } from '../Store';
 import { getError } from '../utils';
 import { toast } from 'react-toastify';
+import { loadStripe } from '@stripe/stripe-js/pure'; // lesson 10
+import StripeCheckout from '../components/StripeCheckout'; // lesson 10
 
 function reducer(state, action) {
   switch (action.type) {
@@ -27,6 +29,20 @@ function reducer(state, action) {
       return { ...state, loadingPay: false };
     case 'PAY_RESET':
       return { ...state, loadingPay: false, successPay: false };
+
+    // lesson 10
+    case 'SHIPPED_REQUEST':
+      return { ...state, loadingShipped: true };
+    case 'SHIPPED_SUCCESS':
+      return { ...state, loadingShipped: false, successShipped: true };
+    case 'SHIPPED_FAIL':
+      return { ...state, loadingShipped: false };
+    case 'SHIPPED_RESET':
+      return {
+        ...state,
+        loadingShipped: false,
+        successShipped: false,
+      };
     default:
       return state;
   }
@@ -35,59 +51,40 @@ function reducer(state, action) {
 export default function OrderDetails() {
   const { state } = useContext(Store);
   const { userInfo } = state;
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [stripe, setStripe] = useState(null);
 
   const params = useParams();
   const { id: orderId } = params;
   const navigate = useNavigate();
 
-  const [{ loading, error, order, successPay, loadingPay }, dispatch] =
-    useReducer(reducer, {
-      loading: true,
-      order: {},
-      error: '',
-      successPay: false,
-      loadingPay: false,
-    });
+  // shipping email confirmation lesson 10
+  const [deliveryDays, setDeliveryDays] = useState('');
+  const [carrierName, setCarrierName] = useState('');
+  const [trackingNumber, setTrackingNumber] = useState('');
+
+  const [
+    {
+      loading,
+      loadingPay,
+      error,
+      order,
+      successPay,
+      loadingShipped, // lesson 10
+      successShipped, // lesson 10
+      shipEmailTemplate, // lesson 10
+      transporter, // lesson 10
+    },
+    dispatch,
+  ] = useReducer(reducer, {
+    loading: true,
+    order: {},
+    error: '',
+    successPay: false,
+    loadingPay: false,
+  });
 
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
-
-  function createOrder(data, actions) {
-    return actions.order
-      .create({
-        purchase_units: [
-          {
-            amount: { value: order.totalPrice },
-          },
-        ],
-      })
-      .then((orderID) => {
-        return orderID;
-      });
-  }
-
-  function onApprove(data, actions) {
-    return actions.order.capture().then(async function (details) {
-      try {
-        dispatch({ type: 'PAY_REQUEST' });
-        const { data } = await axios.put(
-          `/api/orders/${order._id}/pay`,
-          details,
-          {
-            headers: { authorization: `Bearer ${userInfo.token}` },
-          }
-        );
-        dispatch({ type: 'PAY_SUCCESS', payload: data });
-        toast.success('Order is paid');
-      } catch (err) {
-        dispatch({ type: 'PAY_FAIL', payload: getError(err) });
-        toast.error(getError(err));
-      }
-    });
-  }
-
-  function onError(err) {
-    toast.error(getError(err));
-  }
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -102,31 +99,149 @@ export default function OrderDetails() {
       }
     };
 
+    const addStripeScript = async () => {
+      const { data: clientId } = await axios.get('/api/stripe/key', {
+        headers: { authorization: `Bearer ${userInfo.token}` },
+      });
+      const stripeObj = await loadStripe(clientId);
+      setStripe(stripeObj);
+    };
+
+    const loadPaypalScript = async () => {
+      const { data: clientId } = await axios.get('/api/keys/paypal', {
+        headers: { authorization: `Bearer ${userInfo.token}` },
+      });
+      paypalDispatch({
+        type: 'resetOptions',
+        value: {
+          'client-id': clientId,
+          currency: 'USD',
+        },
+      });
+      paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
+    };
+
     if (!userInfo) {
       return navigate('/login');
     }
-    if (!order._id || successPay || (order._id && order._id !== orderId)) {
+    if (
+      !order._id ||
+      successPay ||
+      successShipped ||
+      (order._id && order._id !== orderId)
+    ) {
       fetchOrder();
       if (successPay) {
         dispatch({ type: 'PAY_RESET' });
       }
+      if (successShipped) {
+        dispatch({ type: 'SHIPPED_RESET' });
+      }
     } else {
-      const loadPaypalScript = async () => {
-        const { data: clientId } = await axios.get('/api/keys/paypal', {
-          headers: { authorization: `Bearer ${userInfo.token}` },
-        });
-        paypalDispatch({
-          type: 'resetOptions',
-          value: {
-            'client-id': clientId,
-            currency: 'USD',
-          },
-        });
-        paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
-      };
       loadPaypalScript();
+      addStripeScript();
+      setPaymentMethod(order.paymentMethod);
     }
-  }, [order, userInfo, orderId, navigate, paypalDispatch, successPay]);
+  }, [
+    order,
+    userInfo,
+    orderId,
+    navigate,
+    paypalDispatch,
+    successPay,
+    successShipped,
+    shipEmailTemplate,
+    transporter,
+  ]);
+
+  const createOrder = (data, actions) => {
+    return actions.order
+      .create({
+        purchase_units: [
+          {
+            amount: { value: order.totalPrice },
+          },
+        ],
+      })
+      .then((orderID) => {
+        return orderID;
+      });
+  };
+
+  function onApprove(data, actions) {
+    return actions.order.capture().then(async function (details) {
+      try {
+        dispatch({ type: 'PAY_REQUEST' });
+        const { data } = await axios.put(
+          `/api/orders/${order._id}/pay`,
+          details,
+          {
+            headers: { authorization: `Bearer ${userInfo.token}` },
+          }
+        );
+        dispatch({ type: 'PAY_SUCCESS', payload: data });
+        toast.success('Order is paid', {
+          autoClose: 1000, // Duration in milliseconds (1 second)
+        });
+      } catch (err) {
+        dispatch({ type: 'PAY_FAIL', payload: getError(err) });
+        toast.error(getError(err));
+      }
+    });
+  }
+  const onError = (err) => {
+    toast.error(getError(err));
+  };
+
+  // lesson 10
+  const handleStripeSuccess = async (paymentResult) => {
+    try {
+      dispatch({ type: 'PAY_REQUEST' });
+      const { data } = await axios.put(
+        `/api/orders/${order._id}/pay`,
+        paymentResult,
+        {
+          headers: { authorization: `Bearer ${userInfo.token}` },
+        }
+      );
+      dispatch({ type: 'PAY_SUCCESS', payload: data });
+      if (successPay) {
+        dispatch({ type: 'PAY_RESET' });
+      }
+      toast.success('Order is paid', {
+        autoClose: 1000,
+      });
+    } catch (err) {
+      dispatch({ type: 'PAY_FAIL', payload: getError(err) });
+      toast.error(getError(err));
+    }
+  };
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      dispatch({ type: 'SHIPPED_REQUEST' });
+      // Make an API call to update the order with the shipping information lesson 10
+      const { data } = await axios.put(
+        `/api/orders/${order._id}/shipped`,
+        {
+          deliveryDays,
+          carrierName,
+          trackingNumber,
+        },
+        {
+          headers: { authorization: `Bearer ${userInfo.token}` },
+        }
+      );
+      dispatch({ type: 'SHIPPED_SUCCESS', payload: data });
+      toast.success('Order has shipped', {
+        autoClose: 1000, // Duration in milliseconds (1 second)
+      });
+    } catch (err) {
+      dispatch({ type: 'SHIPPED_FAIL', payload: getError(err) });
+      toast.error(getError(err));
+    }
+  };
 
   return loading ? (
     <LoadingBox />
@@ -134,17 +249,18 @@ export default function OrderDetails() {
     <MessageBox variant='danger'>{error}</MessageBox>
   ) : (
     <div className='content'>
-      <Helmet>
-        {/* displays PayPal or Stripe  */}
-        <title>{order.paymentMethod} Order Details</title>
-      </Helmet>
       <br />
-      <h1 className='box'>Order Details | Order id: {orderId}</h1>
+      <Helmet>
+        <title>{order.paymentMethod}</title> {/* displays PayPal or Stripe  */}
+      </Helmet>
+      <h4 className='box'>
+        {order.paymentMethod} Order: {orderId}
+      </h4>
       <Row>
-        <Col md={8}>
-          <Card className='box'>
-            <Card.Body>
-              <Card.Title>Items</Card.Title>
+        <Col md={6}>
+          <div className='box'>
+            <div className='body'>
+              <title>Items</title>
               <ListGroup variant='flush'>
                 {order.orderItems.map((item) => (
                   <ListGroup.Item key={item._id}>
@@ -158,33 +274,30 @@ export default function OrderDetails() {
                         <Link to={`/product/${item.slug}`}>{item.name}</Link>
                       </Col>
                       <Col md={3}>
-                        <span>{item.quantity}</span>
+                        <span>Quantity: {item.quantity}</span>
                       </Col>
-                      <Col md={3}>${item.price}</Col>
+                      <Col md={3}>Price ${item.price}</Col>
                     </Row>
                   </ListGroup.Item>
                 ))}
               </ListGroup>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
 
-          <Card className='box'>
-            <Card.Body>
-              <Card.Text>
-                <title>Shipping</title>
-                <text>
-                  <strong>Name:</strong> {order.shippingAddress.fullName}
-                  <br />
-                  <strong>Address: </strong> {order.shippingAddress.address}
-                  <br />
-                  <strong>City:</strong> {order.shippingAddress.city} <br />
-                  <strong>State:</strong> {order.shippingAddress.states} <br />
-                  <strong>Postal Code:</strong>{' '}
-                  {order.shippingAddress.postalCode}
-                  <br />
-                  <strong>Country:</strong> {order.shippingAddress.country}
-                </text>
-              </Card.Text>
+          <div className='box'>
+            <div className='body'>
+              <title>Shipping</title>
+              <text>
+                <strong>Name:</strong> {order.shippingAddress.fullName}
+                <br />
+                <strong>Address: </strong> {order.shippingAddress.address}
+                <br />
+                <strong>City:</strong> {order.shippingAddress.city} <br />
+                <strong>State:</strong> {order.shippingAddress.states} <br />
+                <strong>Postal Code:</strong> {order.shippingAddress.postalCode}
+                <br />
+                <strong>Country:</strong> {order.shippingAddress.country}
+              </text>
               {order.isShipped ? (
                 <MessageBox variant='success'>
                   Shipped On{' '}
@@ -201,15 +314,18 @@ export default function OrderDetails() {
               ) : (
                 <MessageBox variant='danger'>Not Shipped</MessageBox>
               )}
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
 
-          <Card className='box'>
-            <Card.Body>
-              <Card.Title>Payment</Card.Title>
-              <Card.Text>
-                <strong>Method:</strong> {order.paymentMethod}
-              </Card.Text>
+          <div className='box'>
+            <div className='body'>
+              <title>Payment</title>
+              <text>
+                <strong>Method:</strong>{' '}
+                {order.paymentMethod === 'Stripe'
+                  ? 'Credit Card'
+                  : order.paymentMethod}
+              </text>
               {order.isPaid ? (
                 <MessageBox variant='success'>
                   Paid at{' '}
@@ -226,14 +342,14 @@ export default function OrderDetails() {
               ) : (
                 <MessageBox variant='danger'>Not Paid</MessageBox>
               )}
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
         </Col>
 
-        <Col md={4}>
-          <Card className='box'>
-            <Card.Body>
-              <Card.Title>Order Summary</Card.Title>
+        <Col md={6}>
+          <div className='box'>
+            <div className='body'>
+              <title>Order Summary</title>
               <ListGroup variant='flush'>
                 <ListGroup.Item>
                   <Row>
@@ -247,32 +363,28 @@ export default function OrderDetails() {
                     </Col>
                   </Row>
                 </ListGroup.Item>
-
                 <ListGroup.Item>
                   <Row>
                     <Col>Order Price</Col>
                     <Col>${order.itemsPrice.toFixed(2)}</Col>
                   </Row>
                 </ListGroup.Item>
-
                 <ListGroup.Item>
                   <Row>
                     <Col>Shipping</Col>
                     <Col>${order.shippingPrice.toFixed(2)}</Col>
                   </Row>
                 </ListGroup.Item>
-
                 <ListGroup.Item>
                   <Row>
                     <Col>Tax</Col>
                     <Col>${order.taxPrice.toFixed(2)}</Col>
                   </Row>
                 </ListGroup.Item>
-
                 <ListGroup.Item>
                   <Row>
                     <Col>
-                      <strong> Order Total</strong>
+                      <strong>Order Total</strong>
                     </Col>
                     <Col>
                       <strong>${order.totalPrice.toFixed(2)}</strong>
@@ -282,23 +394,80 @@ export default function OrderDetails() {
 
                 {!order.isPaid && (
                   <ListGroup.Item>
-                    {isPending ? (
-                      <LoadingBox />
+                    {paymentMethod === 'PayPal' ? (
+                      isPending ? (
+                        <LoadingBox />
+                      ) : (
+                        <div>
+                          <PayPalButtons
+                            createOrder={createOrder}
+                            onApprove={onApprove}
+                            onError={onError}
+                          />
+                          {/* Send payment receipt when item is paid */}
+                          {loadingPay && <LoadingBox />}
+                        </div>
+                      )
                     ) : (
                       <div>
-                        <PayPalButtons
-                          createOrder={createOrder}
-                          onApprove={onApprove}
-                          onError={onError}
-                        ></PayPalButtons>
+                        {/* Send payment receipt when item is paid */}
+                        {!order.isPaid && !stripe && <LoadingBox />}
+                        {!order.isPaid && stripe && (
+                          <StripeCheckout
+                            stripe={stripe}
+                            orderId={order._id}
+                            handleStripeSuccess={handleStripeSuccess}
+                            successPay={successPay}
+                          />
+                        )}
                       </div>
                     )}
-                    {loadingPay && <LoadingBox></LoadingBox>}
+                  </ListGroup.Item>
+                )}
+
+                {userInfo.isAdmin && order.isPaid && !order.isShipped && (
+                  <ListGroup.Item>
+                    {loadingShipped && <LoadingBox />}
+                    <div className='d-grid'>
+                      {/* send shipping confirmation email when order ships */}
+                      <h6>
+                        Admin fill in the fields below to send to customer
+                      </h6>
+                      <Form>
+                        <Form.Group className='mb-3' controlId='days'>
+                          <Form.Label>Delivery Days</Form.Label>
+                          <Form.Control
+                            value={deliveryDays}
+                            onChange={(e) => setDeliveryDays(e.target.value)}
+                            required
+                          />
+                        </Form.Group>
+                        <Form.Group className='mb-3' controlId='name'>
+                          <Form.Label>Carrier Name</Form.Label>
+                          <Form.Control
+                            value={carrierName}
+                            onChange={(e) => setCarrierName(e.target.value)}
+                            required
+                          />
+                        </Form.Group>
+                        <Form.Group className='mb-3' controlId='slug'>
+                          <Form.Label>Tracking Number</Form.Label>
+                          <Form.Control
+                            value={trackingNumber}
+                            onChange={(e) => setTrackingNumber(e.target.value)}
+                            required
+                          />
+                        </Form.Group>
+                      </Form>
+                      <Button type='button' onClick={submitHandler}>
+                        Order Shipped
+                      </Button>
+                    </div>
                   </ListGroup.Item>
                 )}
               </ListGroup>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
         </Col>
       </Row>
     </div>
@@ -309,4 +478,4 @@ export default function OrderDetails() {
 // step 2 (ShippingAddress)
 // step 3 (PaymentMethod) select radial button for PayPal or Stripe
 // step 4 (PlaceOrder)
-// lands on (OrderDetails) for payment <= LAST STEP
+// lands on OrderDetails for payment <= CURRENT STEP

@@ -1,60 +1,57 @@
-import axios from 'axios'; // Importing Axios for making HTTP requests
-import React, { useContext, useEffect, useReducer } from 'react'; // Importing necessary React hooks and components
-import { toast } from 'react-toastify'; // Importing toast notification library
-import { Button, Table } from 'react-bootstrap'; // Importing Bootstrap components
-import { Helmet } from 'react-helmet-async'; // Importing Helmet for managing document head
-import { useNavigate, Link } from 'react-router-dom'; // Importing navigation hooks from React Router
-import LoadingBox from '../components/LoadingBox'; // Importing LoadingBox component
-import MessageBox from '../components/MessageBox'; // Importing MessageBox component
-import { Store } from '../Store'; // Importing Store context
-import { getError } from '../utils'; // Importing utility function for handling errors
-import Pagination from '../components/Pagination'; // Importing Pagination component
+import axios from 'axios';
+import React, { useContext, useEffect, useReducer } from 'react';
+import { toast } from 'react-toastify';
+import { Button, Table } from 'react-bootstrap';
+import { Helmet } from 'react-helmet-async';
+import { useNavigate, Link } from 'react-router-dom';
+import LoadingBox from '../components/LoadingBox';
+import MessageBox from '../components/MessageBox';
+import { Store } from '../Store';
+import { getError } from '../utils';
+import Pagination from '../components/Pagination';
 
-// Reducer function for managing state
 const reducer = (state, action) => {
   switch (action.type) {
     case 'FETCH_REQUEST':
-      return { ...state, loading: true }; // Start loading data
+      return { ...state, loading: true };
     case 'FETCH_SUCCESS':
       return {
         ...state,
         orders: action.payload,
         pages: action.payload.pages,
         loading: false,
-      }; // Successfully fetched data
+      };
     case 'FETCH_FAIL':
-      return { ...state, loading: false, error: action.payload }; // Failed to fetch data
+      return { ...state, loading: false, error: action.payload };
     case 'DELETE_REQUEST':
-      return { ...state, loadingDelete: true, successDelete: false }; // Start deleting order
+      return { ...state, loadingDelete: true, successDelete: false };
     case 'DELETE_SUCCESS':
       return {
         ...state,
         loadingDelete: false,
         successDelete: true,
-      }; // Successfully deleted order
+      };
     case 'DELETE_FAIL':
-      return { ...state, loadingDelete: false }; // Failed to delete order
+      return { ...state, loadingDelete: false };
     case 'DELETE_RESET':
-      return { ...state, loadingDelete: false, successDelete: false }; // Reset delete status
+      return { ...state, loadingDelete: false, successDelete: false };
     default:
       return state;
   }
 };
 
-// OrderList component
 export default function OrderList() {
-  const navigate = useNavigate(); // Navigation hook
-  const { state } = useContext(Store); // Accessing global state from context
-  const { userInfo } = state; // Destructuring user info from state
+  const navigate = useNavigate();
+  const { state } = useContext(Store);
+  const { userInfo } = state;
   const [
     { loading, error, orders, loadingDelete, successDelete, page, pages },
     dispatch,
   ] = useReducer(reducer, {
     loading: true,
     error: '',
-  }); // Using reducer for managing component state
+  });
 
-  // Fetching orders data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -77,7 +74,6 @@ export default function OrderList() {
     }
   }, [userInfo, successDelete]);
 
-  // Deleting an order
   const deleteHandler = async (order) => {
     if (window.confirm('Are you sure to delete?')) {
       try {
@@ -85,7 +81,9 @@ export default function OrderList() {
         await axios.delete(`/api/orders/${order._id}`, {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         });
-        toast.success('order deleted successfully');
+        toast.success('Product deleted successfully', {
+          autoClose: 1000, // Display success message for 1 second
+        });
         dispatch({ type: 'DELETE_SUCCESS' });
       } catch (err) {
         toast.error(getError(error));
@@ -105,13 +103,12 @@ export default function OrderList() {
     return `${month}-${day}-${year}`;
   }
 
-  // Function to generate URL for pagination
+  // Pagination
   const getFilterUrl = (filter) => {
     const filterPage = filter.page || page;
     return `/?&page=${filterPage}`;
   };
 
-  // Rendering UI components
   return (
     <div className='content'>
       <Helmet>
@@ -145,7 +142,6 @@ export default function OrderList() {
             <tbody>
               {orders.map((order) => (
                 <tr key={order._id}>
-                  {/* Displaying order details */}
                   <td>
                     {order._id}{' '}
                     {order.orderItems.map((item) => (
@@ -168,7 +164,6 @@ export default function OrderList() {
                       <>
                         <div>
                           <strong>Email:</strong> {order.user.email}
-                          {/* {console.log(order.user)} */}
                         </div>
                         <div>
                           <strong>Address:</strong> <br />
@@ -201,7 +196,6 @@ export default function OrderList() {
                   <td>{order.carrierName}</td>
                   <td>{order.trackingNumber}</td>
                   <td>
-                    {/* Buttons for viewing details and deleting order */}
                     <Button
                       type='button'
                       variant='primary'

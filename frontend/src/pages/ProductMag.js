@@ -19,7 +19,6 @@ import { getError } from '../utils';
 import { Store } from '../Store';
 import { toast } from 'react-toastify';
 
-// Reducer function to manage state changes
 const reducer = (state, action) => {
   switch (action.type) {
     case 'REFRESH_PRODUCT':
@@ -46,15 +45,11 @@ const reducer = (state, action) => {
 };
 
 export default function ProductMag() {
-  // References
   let reviewsRef = useRef();
-
-  // State variables
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [selectedImage, setSelectedImage] = useState('');
 
-  // Hooks
   const navigate = useNavigate();
   const params = useParams();
   const { slug } = params;
@@ -66,7 +61,6 @@ export default function ProductMag() {
       error: '',
     });
 
-  // Fetch product data on component mount
   useEffect(() => {
     const fetchData = async () => {
       dispatch({ type: 'FETCH_REQUEST' });
@@ -80,13 +74,10 @@ export default function ProductMag() {
     fetchData();
   }, [slug]);
 
-  // Context
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { cart, userInfo } = state;
 
-  // Add to cart handler
   const addToCartHandler = async () => {
-    // Check if item already exists in cart
     const existItem = cart.cartItems.find((x) => x._id === product._id);
     const quantity = existItem ? existItem.quantity + 1 : 1;
     const { data } = await axios.get(`/api/products/${product._id}`);
@@ -94,7 +85,6 @@ export default function ProductMag() {
       window.alert('Sorry. Product is out of stock');
       return;
     }
-    // Dispatch action to add item to cart
     ctxDispatch({
       type: 'CART_ADD_ITEM',
       payload: { ...product, quantity },
@@ -102,16 +92,13 @@ export default function ProductMag() {
     navigate('/cart');
   };
 
-  // Review submission handler
   const submitHandler = async (e) => {
     e.preventDefault();
-    // Validation
     if (!comment || !rating) {
       toast.error('Please enter comment and rating');
       return;
     }
     try {
-      // Submit review to server
       const { data } = await axios.post(
         `/api/products/${product._id}/reviews`,
         { rating, comment, name: userInfo.name },
@@ -119,7 +106,6 @@ export default function ProductMag() {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         }
       );
-      // Update state with new review data
       dispatch({
         type: 'CREATE_SUCCESS',
       });
@@ -197,7 +183,6 @@ export default function ProductMag() {
           </Row>
         </Col>
 
-        {/* Right column: Product name, description, price, etc. */}
         <Col md={6}>
           <ListGroup variant='flush'>
             <ListGroup.Item>
@@ -242,7 +227,6 @@ export default function ProductMag() {
                     </Col>
                   </Row>
                 </ListGroup.Item>
-                {/* Add to cart button */}
                 {product.countInStock > 0 && (
                   <ListGroup.Item>
                     <div className='d-grid'>
@@ -259,7 +243,7 @@ export default function ProductMag() {
       </Row>
 
       <br />
-      {/* Reviews */}
+
       <div className='box'>
         <h2 ref={reviewsRef}>Reviews</h2>
         <div className='mb-3'>
@@ -279,7 +263,6 @@ export default function ProductMag() {
         </ListGroup>
         <br />
         <div className='mb-3'>
-          {/* Review submission form */}
           {userInfo ? (
             <form onSubmit={submitHandler}>
               <h2>Write a customer review</h2>
@@ -314,7 +297,7 @@ export default function ProductMag() {
                 <Button disabled={loadingCreateReview} type='submit'>
                   Submit
                 </Button>
-                {loadingCreateReview && <LoadingBox></LoadingBox>}
+                {loadingCreateReview && <LoadingBox />}
               </div>
             </form>
           ) : (
