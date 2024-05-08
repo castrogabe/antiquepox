@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { Helmet } from 'react-helmet-async';
 
 // Gallery component that displays a collection of products
 export default function Gallery() {
@@ -28,35 +29,37 @@ export default function Gallery() {
   return (
     <>
       <div className='content'>
+        <Helmet>
+          <title>Gallery</title>
+        </Helmet>
         <br />
         <h1 className='box'>Gallery</h1>
-      </div>
-
-      <Row>
-        <Col>
-          <div className='products'>
-            {/* Map through the products and render each product */}
-            {products.map((product) => (
-              <div className='product' key={product.slug}>
-                {/* Link to the individual product page */}
-                <Link to={`/product/${product.slug}`}>
-                  <img src={product.image} alt={product.name} />
-                </Link>
-                <div className='product-info'>
+        <Row>
+          <Col>
+            <div className='products'>
+              {/* Map through the products and render each product */}
+              {products.map((product) => (
+                <div className='product' key={product.slug}>
                   {/* Link to the individual product page */}
                   <Link to={`/product/${product.slug}`}>
-                    <p>{product.name}</p>
+                    <img src={product.image} alt={product.name} />
                   </Link>
-                  {/* <p>
+                  <div className='product-info'>
+                    {/* Link to the individual product page */}
+                    <Link to={`/product/${product.slug}`}>
+                      <p>{product.name}</p>
+                    </Link>
+                    {/* <p>
                     <strong>${product.price}</strong>
                   </p>
                   <button>Add to cart</button> */}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </Col>
-      </Row>
+              ))}
+            </div>
+          </Col>
+        </Row>
+      </div>
     </>
   );
 }
