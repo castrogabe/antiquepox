@@ -1,4 +1,3 @@
-// Importing necessary dependencies from external libraries
 import axios from 'axios';
 import { useEffect, useReducer, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -10,7 +9,6 @@ import MessageBox from '../components/MessageBox';
 import { getError } from '../utils';
 import { Store } from '../Store';
 
-// Reducer function to handle state changes based on different actions
 const reducer = (state, action) => {
   switch (action.type) {
     case 'FETCH_REQUEST':
@@ -24,21 +22,17 @@ const reducer = (state, action) => {
   }
 };
 
-// Functional component for displaying product details
 export default function ProductMag() {
-  // Initializing necessary hooks and variables
   const navigate = useNavigate();
   const params = useParams();
   const { slug } = params;
 
-  // State and dispatch for handling product data, loading, and errors
   const [{ loading, error, product }, dispatch] = useReducer(reducer, {
     product: [],
     loading: true,
     error: '',
   });
 
-  // Effect hook to fetch product data based on the slug parameter
   useEffect(() => {
     const fetchData = async () => {
       dispatch({ type: 'FETCH_REQUEST' });
@@ -52,11 +46,9 @@ export default function ProductMag() {
     fetchData();
   }, [slug]);
 
-  // Context hook to access global state and dispatch function
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { cart } = state;
 
-  // Handler function to add the product to the cart
   const addToCartHandler = async () => {
     const existItem = cart.cartItems.find((x) => x._id === product._id);
     const quantity = existItem ? existItem.quantity + 1 : 1;
@@ -72,7 +64,6 @@ export default function ProductMag() {
     navigate('/cart');
   };
 
-  // Rendering different components based on loading and error states
   return loading ? (
     <LoadingBox />
   ) : error ? (
@@ -82,7 +73,6 @@ export default function ProductMag() {
       <br />
       <div className='box'>
         <Row>
-          {/* Introduction paragraph */}
           <p className='mt-3'>
             ~ Explore a meticulously curated collection where each item has been
             thoughtfully chosen over the years. Our exclusive range features
@@ -99,7 +89,6 @@ export default function ProductMag() {
       <br />
       <Row>
         <Col md={6}>
-          {/* Displaying product image */}
           <img
             className='img-large'
             src={product.image}
@@ -107,18 +96,14 @@ export default function ProductMag() {
           ></img>
         </Col>
         <Col md={6}>
-          {/* Product details list */}
           <ListGroup variant='flush'>
             <ListGroup.Item>
-              {/* Setting the title of the page dynamically */}
               <Helmet>
                 <title>{product.name}</title>
               </Helmet>
-              {/* Displaying product name */}
               <h1>{product.name}</h1>
             </ListGroup.Item>
             <ListGroup.Item>
-              {/* Displaying product rating using the Rating component */}
               <Rating
                 rating={product.rating}
                 numReviews={product.numReviews}
@@ -128,7 +113,6 @@ export default function ProductMag() {
             <ListGroup.Item>From : {product.from}</ListGroup.Item>
             <ListGroup.Item>Finish : {product.finish}</ListGroup.Item>
             <ListGroup.Item>
-              {/* Displaying product description */}
               Description:
               <p>{product.description}</p>
             </ListGroup.Item>
@@ -136,10 +120,8 @@ export default function ProductMag() {
 
           <br />
 
-          {/* Card for additional product details */}
           <Card>
             <Card.Body>
-              {/* List of details such as price, status, and add to cart button */}
               <ListGroup variant='flush'>
                 <ListGroup.Item>
                   <Row>
@@ -151,7 +133,6 @@ export default function ProductMag() {
                   <Row>
                     <Col>Status:</Col>
                     <Col>
-                      {/* Displaying product availability status */}
                       {product.countInStock > 0 ? (
                         <Badge bg='success'>In Stock</Badge>
                       ) : (
@@ -161,7 +142,6 @@ export default function ProductMag() {
                   </Row>
                 </ListGroup.Item>
 
-                {/* Add to cart button, displayed only if product is in stock */}
                 {product.countInStock > 0 && (
                   <ListGroup.Item>
                     <div className='d-grid'>

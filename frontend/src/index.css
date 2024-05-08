@@ -513,9 +513,11 @@ a.email {
   .search {
     font-size: smaller;
   }
-
   .search h3 {
     font-size: 12px;
+  }
+  .d-flex.me-auto {
+    padding-top: 20px; /* padding under logo  */
   }
 
   /* Removes category header and uses hamburger */

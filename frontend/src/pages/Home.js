@@ -74,7 +74,6 @@ export default function Home() {
         </div>
         <br />
 
-        {/* Products section, product inside products */}
         <Row>
           <Col>
             {' '}

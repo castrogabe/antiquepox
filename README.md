@@ -206,6 +206,7 @@ server.js > updated with MongoDB, routes, models
 .env > add JWT_SECRET, MongoDB connection (create mongodb connection string)
 .env.example > added
 utils.js > added for jsonwebtoken
+
 folder: models added
 productModel.js > added
 userModel.js > added
@@ -232,3 +233,26 @@ Store.js > added
 .gitignore > updated with .env (line 4) so we don't push our .env to github
 
 git 5th commit
+
+# Sixth Commit-Checkout (Lesson 6)
+
+BACKEND
+folder: routes
+userRoutes.js > updated
+
+FRONTEND
+folder: components
+CheckoutSteps.js > added
+Header.js > added about us dropdown, re-arranged cart, SignoutHandler
+ProductCard.js > added toast notification with image
+
+folder: pages
+PaymentMethod.js > added
+ShippingAddress.js added  
+Signup.js > added
+
+Store.js > updated to SAVE_SHIPPING_ADDRESS
+
+App.js > updated added 3 pages, ToastContainer
+
+Git 6th commit

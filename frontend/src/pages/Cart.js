@@ -1,4 +1,3 @@
-// Importing necessary dependencies and components
 import React, { useContext } from 'react';
 import { Store } from '../Store';
 import { Helmet } from 'react-helmet-async';
@@ -7,7 +6,6 @@ import MessageBox from '../components/MessageBox';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-// Functional component for the shopping cart page
 export default function Cart() {
   // Initializing useNavigate hook for navigation
   const navigate = useNavigate();
@@ -18,28 +16,23 @@ export default function Cart() {
     cart: { cartItems },
   } = state;
 
-  // Async function to update the quantity of items in the cart
   const updateCartHandler = async (item, quantity) => {
     // Fetching additional data about the item from the server
     const { data } = await axios.get(`/api/products/${item._id}`);
-    // Checking if the item is in stock
     if (data.countInStock < quantity) {
       window.alert('Sorry. Product is out of stock');
       return;
     }
-    // Dispatching an action to update the cart with the new quantity
     ctxDispatch({
       type: 'CART_ADD_ITEM',
       payload: { ...item, quantity },
     });
   };
 
-  // Function to remove an item from the cart
   const removeItemHandler = (item) => {
     ctxDispatch({ type: 'CART_REMOVE_ITEM', payload: item });
   };
 
-  // Function to handle checkout, redirects to the signin page with a redirect parameter
   const checkoutHandler = () => {
     navigate('/signin?redirect=/shipping');
   };
@@ -54,18 +47,15 @@ export default function Cart() {
       <Row>
         <Col md={8} className='box'>
           {cartItems.length === 0 ? (
-            // Displaying a message if the cart is empty
             <MessageBox>
               Cart is empty. <Link to='/'>Go Shopping</Link>
             </MessageBox>
           ) : (
-            // Displaying the list of items in the cart
             <ListGroup>
               {cartItems.map((item) => (
                 <ListGroup.Item key={item._id}>
                   <Row className='align-items-center'>
                     <Col md={4}>
-                      {/* Displaying item image and name with a link to the product page */}
                       <img
                         src={item.image}
                         alt={item.name}
@@ -97,7 +87,6 @@ export default function Cart() {
                     </Col>
                     <Col md={3}>${item.price}</Col>
                     <Col md={2}>
-                      {/* Button to remove the item from the cart */}
                       <Button
                         onClick={() => removeItemHandler(item)}
                         variant='light'
@@ -113,12 +102,10 @@ export default function Cart() {
         </Col>
 
         <Col md={4}>
-          {/* Card displaying subtotal and checkout button */}
           <Card>
             <Card.Body>
               <ListGroup variant='flush'>
                 <ListGroup.Item>
-                  {/* Displaying the subtotal of the items in the cart */}
                   <h3>
                     Subtotal ({cartItems.reduce((a, c) => a + c.quantity, 0)}{' '}
                     items) : $
@@ -126,7 +113,6 @@ export default function Cart() {
                   </h3>
                 </ListGroup.Item>
                 <ListGroup.Item>
-                  {/* Checkout button */}
                   <div className='d-grid'>
                     <Button
                       type='button'
@@ -146,3 +132,9 @@ export default function Cart() {
     </div>
   );
 }
+
+// step 1 (Cart) <= CURRENT STEP
+// step 2 (ShippingAddress2Screen)
+// step 3 (PaymentMethod) select radial button for PayPal or Stripe
+// step 4 (PlaceOrder)
+// lands on (Order) for payment
