@@ -144,3 +144,23 @@ Open new terminal or command prompt in VSCode
 5. git push
 
 Now you can check repository for updated code.
+
+# Third Commit create backend and show products (Lesson 3)
+
+Terminal: mkdir backend (Root of antiquepox)
+cd backend > npm init (enter thru the prompts) creates {}package.json
+
+BACKEND
+data.js > added
+.gitiginore > added
+server.js > added
+. create route for api/products
+. update and fetch products from backend using axios
+. get state from useReducer
+. update HomeScreen.js
+
+FRONTEND
+.folder: pages
+Gallery.js > updated
+Home.js > updated
+Product.js > updated

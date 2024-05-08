@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col, Card, Image } from 'react-bootstrap';
 
-const About = () => {
+export default function About() {
   return (
     <>
       <div className='content'>
@@ -110,6 +110,4 @@ const About = () => {
       </div>
     </>
   );
-};
-
-export default About;
+}

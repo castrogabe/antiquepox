@@ -1,3 +1,8 @@
+// data (object)
+// products [array] <= notice the square brackets signify array
+// {object} each product is an object in the [array]
+// images come from the frontend > public folder
+
 const data = {
   products: [
     {

@@ -252,6 +252,7 @@ a.email {
   display: none;
 }
 
+/* display flex allows products next to each other */
 .products {
   display: flex;
   flex-wrap: wrap;
