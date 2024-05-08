@@ -280,3 +280,37 @@ OrderHistory.js > added,
 App.js > updated added 4 pages
 
 Git 7th commit
+
+# Eighth Commit-Admin, Part 1 of 4 (lesson 8)
+
+BACKEND
+folder: routes
+orderRoutes.js > updated
+productRoutes.js > updated
+
+config.js > added
+server.js > updated with config
+utils.js > updated
+
+FRONTEND
+folder: components
+Footer.js > updated
+ProtectedRoute.js > added
+AdminRoute.js > added
+Header.js > updated
+Searchbox.js > added
+BottomHeader.js > updated (Categories)
+Pagination.js > added
+Rating.js > updated
+
+folder: pages
+AskedQuestions.js > added
+Design.js > added
+Dashboard.js > added
+ProductList.js > added
+Search.js > added
+Home.js > updated with pagination component
+
+App.js > updated with 5 pages, AdminRoute, ProtectedRoute
+
+Git 8th commit

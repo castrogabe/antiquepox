@@ -1,10 +1,11 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import config from './config.js'; // lesson 8
 import dotenv from 'dotenv';
 import seedRouter from './routes/seedRoutes.js';
 import productRouter from './routes/productRoutes.js';
 import userRouter from './routes/userRoutes.js';
-import orderRouter from './routes/orderRoutes.js'; // lesson 7
+import orderRouter from './routes/orderRoutes.js';
 
 dotenv.config();
 
@@ -23,13 +24,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/api/keys/paypal', (req, res) => {
-  res.send(process.env.PAYPAL_CLIENT_ID || 'sb');
+  res.send(config.PAYPAL_CLIENT_ID || 'sb'); // lesson 8
 });
 
+// Routes
 app.use('/api/seed', seedRouter);
 app.use('/api/products', productRouter);
 app.use('/api/users', userRouter);
-app.use('/api/orders', orderRouter); // lesson 7
+app.use('/api/orders', orderRouter);
 
 app.use((err, req, res, next) => {
   res.status(500).send({ message: err.message });

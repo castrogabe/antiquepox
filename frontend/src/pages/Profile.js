@@ -6,8 +6,6 @@ import { toast } from 'react-toastify';
 import { getError } from '../utils';
 import axios from 'axios';
 
-// Reducer function for handling state related to user profile update
-// logged in user can update name and password
 const reducer = (state, action) => {
   switch (action.type) {
     case 'UPDATE_REQUEST':
@@ -24,19 +22,14 @@ const reducer = (state, action) => {
 const ProfileScreen = () => {
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { userInfo } = state;
-
-  // Local state for form inputs and loading state
   const [name, setName] = useState(userInfo.name);
   const [email, setEmail] = useState(userInfo.email);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-
-  // UseReducer hook for handling state changes
   const [{ loadingUpdate }, dispatch] = useReducer(reducer, {
     loadingUpdate: false,
   });
 
-  // Function to handle form submission
   const submitHandler = async (e) => {
     e.preventDefault();
     try {

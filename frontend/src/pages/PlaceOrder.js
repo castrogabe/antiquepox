@@ -9,7 +9,6 @@ import { Store } from '../Store';
 import CheckoutSteps from '../components/CheckoutSteps';
 import LoadingBox from '../components/LoadingBox';
 
-// Reducer function to handle state changes related to creating an order
 const reducer = (state, action) => {
   switch (action.type) {
     case 'CREATE_REQUEST':
@@ -25,20 +24,13 @@ const reducer = (state, action) => {
 
 export default function PlaceOrder() {
   const navigate = useNavigate();
-
-  // State and dispatch from global store
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { cart, userInfo } = state;
-
-  // Reducer state and dispatch for creating order
   const [{ loading }, dispatch] = useReducer(reducer, {
     loading: false,
   });
-
-  // Function to round a number to two decimal places
   const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100;
 
-  // Calculating prices for cart items, shipping, tax, and total
   cart.itemsPrice = round2(
     cart.cartItems.reduce((a, c) => a + c.quantity * c.price, 0)
   );
@@ -48,12 +40,9 @@ export default function PlaceOrder() {
   cart.taxPrice = round2(0.05 * cart.itemsPrice); // TAX PRICE 5%
   cart.totalPrice = cart.itemsPrice + cart.shippingPrice + cart.taxPrice;
 
-  // Function to handle placing the order
   const placeOrderHandler = async () => {
     try {
       dispatch({ type: 'CREATE_REQUEST' });
-
-      // Sending a request to create a new order
       const { data } = await Axios.post(
         '/api/orders',
         {
@@ -71,8 +60,6 @@ export default function PlaceOrder() {
           },
         }
       );
-
-      // Clearing cart, updating state, and navigating to the order details page
       ctxDispatch({ type: 'CART_CLEAR' });
       dispatch({ type: 'CREATE_SUCCESS' });
       localStorage.removeItem('cartItems');
@@ -83,7 +70,6 @@ export default function PlaceOrder() {
     }
   };
 
-  // Redirect to the payment step if payment method is not selected
   useEffect(() => {
     if (!cart.paymentMethod) {
       navigate('/payment');
@@ -101,7 +87,6 @@ export default function PlaceOrder() {
       <h1 className='box'>Place Order</h1>
       <Row>
         <Col md={8}>
-          {/* Cart Items */}
           <Card className='box'>
             <Card.Body>
               <Card.Title>Items</Card.Title>
@@ -129,7 +114,6 @@ export default function PlaceOrder() {
             </Card.Body>
           </Card>
 
-          {/* Shipping Information */}
           <Card className='box'>
             <Card.Body>
               <Card.Text>
@@ -153,7 +137,6 @@ export default function PlaceOrder() {
             </Card.Body>
           </Card>
 
-          {/* Payment Information */}
           <Card className='box'>
             <Card.Body>
               <Card.Title>Payment</Card.Title>
@@ -164,7 +147,7 @@ export default function PlaceOrder() {
             </Card.Body>
           </Card>
         </Col>
-        {/* Order Summary */}
+
         <Col md={4}>
           <Card>
             <Card.Body>
@@ -210,7 +193,7 @@ export default function PlaceOrder() {
                     </Col>
                   </Row>
                 </ListGroup.Item>
-                {/* Place Order Button */}
+
                 <ListGroup.Item>
                   <div className='d-grid'>
                     <Button

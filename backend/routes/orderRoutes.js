@@ -1,16 +1,15 @@
 import express from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import Order from '../models/orderModel.js';
-import { isAuth } from '../utils.js';
+import User from '../models/userModel.js';
+import Product from '../models/productModel.js';
+import { isAuth, isAdmin } from '../utils.js'; // lesson 8
 
 const orderRouter = express.Router();
-
-// Create a new order
 orderRouter.post(
   '/',
   isAuth,
   expressAsyncHandler(async (req, res) => {
-    // Create a new order based on the request body
     const newOrder = new Order({
       orderItems: req.body.orderItems.map((x) => ({ ...x, product: x._id })),
       shippingAddress: req.body.shippingAddress,
@@ -22,13 +21,73 @@ orderRouter.post(
       user: req.user._id,
     });
 
-    // Save the new order to the database
     const order = await newOrder.save();
     res.status(201).send({ message: 'New Order Created', order });
   })
 );
 
-// Get the logged-in user's order history
+// lesson 8
+
+// Route for getting summary data for auth users and admin
+orderRouter.get(
+  '/summary',
+  isAuth, // Middleware for authentication
+  isAdmin, // Middleware for admin authorization
+  expressAsyncHandler(async (req, res) => {
+    // Aggregation operations process multiple documents and return computed results
+    // Aggregating order data for summary
+    const orders = await Order.aggregate([
+      {
+        // groups all _id: orders and combines them in totalPrice
+        $group: {
+          _id: null,
+          numOrders: { $sum: 1 },
+          totalSales: { $sum: '$totalPrice' },
+        },
+      },
+    ]);
+
+    // Aggregating user data for summary
+    const users = await User.aggregate([
+      {
+        // groups all users and combines them in numUsers
+        $group: {
+          _id: null,
+          numUsers: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Aggregating daily order data for summary
+    const dailyOrders = await Order.aggregate([
+      {
+        $group: {
+          // _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          _id: { $dateToString: { format: '%m-%d-%Y', date: '$createdAt' } },
+          orders: { $sum: 1 },
+          sales: { $sum: '$totalPrice' },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    // Aggregating product category data for summary
+    const productCategories = await Product.aggregate([
+      {
+        $group: {
+          _id: '$category',
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Sending summary data as response
+    res.send({ users, orders, dailyOrders, productCategories });
+  })
+);
+
+// end lesson 8
+
 orderRouter.get(
   '/mine',
   isAuth,
@@ -38,7 +97,6 @@ orderRouter.get(
   })
 );
 
-// Get details of a specific order by ID
 orderRouter.get(
   '/:id',
   isAuth,
@@ -52,14 +110,12 @@ orderRouter.get(
   })
 );
 
-// Update payment status for a specific order
 orderRouter.put(
   '/:id/pay',
   isAuth,
   expressAsyncHandler(async (req, res) => {
     const order = await Order.findById(req.params.id);
     if (order) {
-      // Update payment-related details
       order.isPaid = true;
       order.paidAt = Date.now();
       order.paymentResult = {
@@ -69,7 +125,6 @@ orderRouter.put(
         email_address: req.body.email_address,
       };
 
-      // Save the updated order to the database
       const updatedOrder = await order.save();
       res.send({ message: 'Order Paid', order: updatedOrder });
     } else {

@@ -1,29 +1,42 @@
 import React, { useEffect, useReducer } from 'react';
-import { Row, Col } from 'react-bootstrap';
-import { Helmet } from 'react-helmet-async';
-import ProductCard from '../components/ProductCard';
+import Jumbotron from '../components/Jumbotron';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
-import logger from 'use-reducer-logger';
+import { getError } from '../utils';
+import { Helmet } from 'react-helmet-async';
+import { Row, Col } from 'react-bootstrap';
 import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
-import Jumbotron from '../components/Jumbotron';
+import ProductCard from '../components/ProductCard';
+import Pagination from '../components/Pagination';
 
 const reducer = (state, action) => {
   switch (action.type) {
     case 'FETCH_REQUEST':
       return { ...state, loading: true };
     case 'FETCH_SUCCESS':
-      return { ...state, products: action.payload, loading: false };
+      return {
+        ...state,
+        products: action.payload.products,
+        page: action.payload.page,
+        pages: action.payload.pages,
+        countProducts: action.payload.countProducts,
+        loading: false,
+      };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
+
     default:
       return state;
   }
 };
 
 export default function Home() {
-  const [{ loading, error, products }, dispatch] = useReducer(logger(reducer), {
-    products: [],
+  const { search } = useLocation();
+  const sp = new URLSearchParams(search);
+  const page = sp.get('page') || 1;
+
+  const [{ loading, error, products, pages }, dispatch] = useReducer(reducer, {
     loading: true,
     error: '',
   });
@@ -32,18 +45,27 @@ export default function Home() {
     const fetchData = async () => {
       dispatch({ type: 'FETCH_REQUEST' });
       try {
-        const result = await axios.get('/api/products');
+        const result = await axios.get(`/api/products/search?page=${page}`); // lesson 8
         dispatch({ type: 'FETCH_SUCCESS', payload: result.data });
       } catch (err) {
-        dispatch({ type: 'FETCH_FAIL', payload: err.message });
+        dispatch({
+          type: 'FETCH_FAIL',
+          payload: getError(err),
+        });
       }
     };
     fetchData();
-  }, []);
+  }, [page]);
+
+  // Pagination
+  const getFilterUrl = (filter) => {
+    const filterPage = filter.page || page;
+    return `/?&page=${filterPage}`;
+  };
 
   return (
     <>
-      <div className='jumbotron1' alt='antiques'>
+      <div className='jumbotron1' alt='tools'>
         <Jumbotron
           text={[
             'Antiques',
@@ -61,7 +83,6 @@ export default function Home() {
           <title>Antiquepox</title>
         </Helmet>
         <br />
-        <h1 className='box'>Featured Products</h1>
         <div className='box'>
           <p>
             ~ Explore our virtual antique haven! We take joy in curating an
@@ -73,28 +94,19 @@ export default function Home() {
           </p>
         </div>
         <br />
-
         <Row>
           <Col>
-            {' '}
-            <div className='products'>
-              {loading ? (
-                <LoadingBox />
-              ) : error ? (
-                <MessageBox variant='danger'>{error}</MessageBox>
-              ) : (
+            {loading ? (
+              <LoadingBox />
+            ) : error ? (
+              <MessageBox variant='danger'>{error}</MessageBox>
+            ) : (
+              <>
+                {products.length === 0 && (
+                  <MessageBox>No Product Found</MessageBox>
+                )}
                 <Row>
                   {products.map((product) => (
-                    // 4 col
-                    // <Col
-                    //   key={product.slug}
-                    //   sm={6}
-                    //   md={4}
-                    //   lg={3}
-                    //   className='mb-3'
-                    // >
-
-                    // 6 columns
                     <Col
                       key={product.slug}
                       sm={6}
@@ -107,8 +119,16 @@ export default function Home() {
                     </Col>
                   ))}
                 </Row>
-              )}
-            </div>
+
+                {/* Pagination Component */}
+                <Pagination
+                  currentPage={page}
+                  totalPages={pages}
+                  getFilterUrl={getFilterUrl}
+                />
+                <br />
+              </>
+            )}
           </Col>
         </Row>
       </div>

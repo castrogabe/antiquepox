@@ -11,7 +11,6 @@ import { Store } from '../Store';
 import { getError } from '../utils';
 import { toast } from 'react-toastify';
 
-// Reducer function to handle different actions
 function reducer(state, action) {
   switch (action.type) {
     case 'FETCH_REQUEST':
@@ -33,7 +32,6 @@ function reducer(state, action) {
   }
 }
 
-// OrderScreen component
 export default function OrderDetails() {
   const { state } = useContext(Store);
   const { userInfo } = state;
@@ -53,7 +51,6 @@ export default function OrderDetails() {
 
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
 
-  // Function to create the PayPal order
   function createOrder(data, actions) {
     return actions.order
       .create({
@@ -68,7 +65,6 @@ export default function OrderDetails() {
       });
   }
 
-  // Function to handle PayPal payment approval
   function onApprove(data, actions) {
     return actions.order.capture().then(async function (details) {
       try {
@@ -113,16 +109,13 @@ export default function OrderDetails() {
     }
 
     // If order details are not available, or payment is successful, or order ID is different,
-    // fetch order details again
     if (!order._id || successPay || (order._id && order._id !== orderId)) {
       fetchOrder();
 
-      // Reset payment status if payment was successful
       if (successPay) {
         dispatch({ type: 'PAY_RESET' });
       }
     } else {
-      // Load PayPal script when order details are available
       const loadPaypalScript = async () => {
         const { data: clientId } = await axios.get('/api/keys/paypal', {
           headers: { authorization: `Bearer ${userInfo.token}` },
@@ -155,7 +148,6 @@ export default function OrderDetails() {
 
       <Row>
         <Col md={8}>
-          {/* Order Items */}
           <Card className='box'>
             <Card.Body>
               <Card.Title>Items</Card.Title>
@@ -182,7 +174,6 @@ export default function OrderDetails() {
             </Card.Body>
           </Card>
 
-          {/* Shipping Details */}
           <Card className='box'>
             <Card.Body>
               <Card.Text>
@@ -219,7 +210,6 @@ export default function OrderDetails() {
             </Card.Body>
           </Card>
 
-          {/* Payment Details */}
           <Card className='box'>
             <Card.Body>
               <Card.Title>Payment</Card.Title>
@@ -246,7 +236,6 @@ export default function OrderDetails() {
           </Card>
         </Col>
 
-        {/* Order Summary */}
         <Col md={4}>
           <Card className='box'>
             <Card.Body>
@@ -264,7 +253,7 @@ export default function OrderDetails() {
                     </Col>
                   </Row>
                 </ListGroup.Item>
-                {/* Items Price */}
+
                 <ListGroup.Item>
                   <Row>
                     <Col>Order Price</Col>
@@ -272,7 +261,6 @@ export default function OrderDetails() {
                   </Row>
                 </ListGroup.Item>
 
-                {/* Shipping Price */}
                 <ListGroup.Item>
                   <Row>
                     <Col>Shipping</Col>
@@ -280,7 +268,6 @@ export default function OrderDetails() {
                   </Row>
                 </ListGroup.Item>
 
-                {/* Tax Price */}
                 <ListGroup.Item>
                   <Row>
                     <Col>Tax</Col>
@@ -288,7 +275,6 @@ export default function OrderDetails() {
                   </Row>
                 </ListGroup.Item>
 
-                {/* Order Total */}
                 <ListGroup.Item>
                   <Row>
                     <Col>
@@ -300,7 +286,6 @@ export default function OrderDetails() {
                   </Row>
                 </ListGroup.Item>
 
-                {/* PayPal Payment Buttons */}
                 {!order.isPaid && (
                   <ListGroup.Item>
                     {isPending ? (
