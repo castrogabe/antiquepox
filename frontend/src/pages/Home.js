@@ -1,11 +1,12 @@
 import React, { useEffect, useReducer } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
-import Product from '../components/Product';
+import ProductCard from '../components/ProductCard';
 import axios from 'axios';
 import logger from 'use-reducer-logger';
 import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
+import Jumbotron from '../components/Jumbotron';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -42,6 +43,19 @@ export default function Home() {
 
   return (
     <>
+      <div className='jumbotron1' alt='antiques'>
+        <Jumbotron
+          text={[
+            'Antiques',
+            'Art',
+            'Collectibles',
+            'Vintage Items',
+            '@',
+            'antiquepox.com',
+          ]}
+        />
+      </div>
+
       <div className='content'>
         <Helmet>
           <title>Antiquepox</title>
@@ -72,14 +86,25 @@ export default function Home() {
               ) : (
                 <Row>
                   {products.map((product) => (
+                    // 4 col
+                    // <Col
+                    //   key={product.slug}
+                    //   sm={6}
+                    //   md={4}
+                    //   lg={3}
+                    //   className='mb-3'
+                    // >
+
+                    // 6 columns
                     <Col
                       key={product.slug}
                       sm={6}
                       md={4}
-                      lg={3}
+                      lg={2}
+                      xl={2}
                       className='mb-3'
                     >
-                      <Product product={product}></Product>
+                      <ProductCard product={product} />
                     </Col>
                   ))}
                 </Row>

@@ -1,24 +1,35 @@
 import express from 'express';
-import data from './data.js';
+// import data from './data.js'; // Importing data from a local file
+import mongoose from 'mongoose'; // Importing Mongoose for MongoDB interactions
+import dotenv from 'dotenv'; // Importing dotenv for environment variable management
+import seedRouter from './routes/seedRoutes.js'; // Importing the seed router
+import productRouter from './routes/productRoutes.js'; // Importing the product router
+import userRouter from './routes/userRoutes.js'; // Importing the user router
 
-const app = express();
-app.get('/api/products', (req, res) => {
-  res.send(data.products);
-});
+dotenv.config(); // Loading environment variables from the .env file
 
-// Define a route for handling GET requests to '/api/products/slug/:slug'
-app.get('/api/products/slug/:slug', (req, res) => {
-  // Find a product in the 'data' array whose slug matches the value in the request parameters
-  const product = data.products.find((x) => x.slug === req.params.slug);
+mongoose
+  .connect(process.env.MONGODB_URI) // Connecting to MongoDB using the provided URI from environment variables
+  .then(() => {
+    console.log('connected to db');
+  })
+  .catch((err) => {
+    console.log(err.message);
+  });
 
-  // Check if a matching product was found
-  if (product) {
-    // If found, send the product as the response
-    res.send(product);
-  } else {
-    // If no matching product was found, set a 404 status and send a message indicating that the product was not found
-    res.status(404).send({ message: 'Product Not Found' });
-  }
+const app = express(); // Creating an instance of the Express application
+
+app.use(express.json()); // Parsing JSON requests
+app.use(express.urlencoded({ extended: true })); // Parsing URL-encoded requests
+
+// Setting up routes
+app.use('/api/seed', seedRouter); // Using the seed router for '/api/seed' endpoint
+app.use('/api/products', productRouter); // Using the product router for '/api/products' endpoint
+app.use('/api/users', userRouter); // Using the user router for '/api/users' endpoint
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  res.status(500).send({ message: err.message });
 });
 
 const port = process.env.PORT || 8000;

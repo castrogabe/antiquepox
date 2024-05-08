@@ -198,3 +198,37 @@ Rating.js > added
 . Add React spinner in LoadingBox
 . utils.js to define error function
 . update server.js in backend
+
+# Fifth Commit, Jumbotron, Cart, Signin,.env, JWT, MongoDB (Lesson 5)
+
+BACKEND
+server.js > updated with MongoDB, routes, models
+.env > add JWT_SECRET, MongoDB connection (create mongodb connection string)
+.env.example > added
+utils.js > added for jsonwebtoken
+folder: models added
+productModel.js > added
+userModel.js > added
+
+folder: routes added
+productRoutes.js > added
+seedRoutes.js > added
+userRoutes.js > added
+
+FRONTEND
+folder: components
+Product.js > updated to ProductCard.js, css for Card.Title var(--dark)
+Header.js > updated with Cart, Signin User dropdown
+Jumbotron > added with typewriter effect
+
+folder: pages
+Cart.js > added
+Signin.js > added
+Home.js > updated for 6 col and Jumbotron
+App.js > updated with Signin and Cart pages
+index.js > updated with StoreProvider
+index.css > uncomment css lines 65, and 522
+Store.js > added
+.gitignore > updated with .env (line 4) so we don't push our .env to github
+
+git 5th commit
