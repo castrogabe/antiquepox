@@ -3,6 +3,19 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
   /* -webkit-font-smoothing: antialiased; */
   -moz-osx-font-smoothing: grayscale;
 }
@@ -177,11 +190,14 @@ a.email {
   border-color: var(--primary);
 }
 
+/* header */
 .header {
   padding-top: 2rem;
   padding-bottom: 2rem;
   /* background-color: #353b40; */
   background: var(--bold);
+  padding-left: 5%;
+  padding-right: 5%;
 }
 .bottom-header {
   text-decoration: none;
@@ -192,6 +208,8 @@ a.email {
   color: var(--primary);
   text-align: center;
   justify-content: space-around;
+  padding-left: 5%;
+  padding-right: 5%;
 }
 
 .jumbotron1 {

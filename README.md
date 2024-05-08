@@ -117,3 +117,30 @@ Add Bootstrap and all css
 4. git branch -M master
 5. git remote add origin https://github.com/(yourname)/antiquepox.git
 6. git push -u origin master
+
+# 2nd Commit add static data and steps for second commit
+
+npm install --save-dev @babel/plugin-proposal-private-property-in-object (fix frontend error)
+
+FRONTEND
+folder: components
+Header.js > updated with font awesome and text for navbar name
+Font Awesome Icons: https://fontawesome.com/icons you can find lots of free icons for your application
+
+folder: pages
+AboutUs.js > updated with boiler plate and images // replace with your own content
+
+data.js > added (root)
+
+---
+
+steps for second commit, ect:
+Open new terminal or command prompt in VSCode
+
+1. git add . (space between add .)
+2. git status (shows staged files ready to commit in green)
+3. git commit -m "2nd Commit add static data and steps for second commit" (I copy and paste this)
+4. git status (tells us that everything is committed "working tree clean" on main branch)
+5. git push
+
+Now you can check repository for updated code.
