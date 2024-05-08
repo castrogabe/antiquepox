@@ -344,3 +344,44 @@ ProductMag.js > updated
 
 App.js > updated with 4 pages
 signup to Cloudinary
+
+Git 9th commit
+
+# Tenth Commit-Admin, Part 3 of 4 Nodemailer, Stripe, Password (lesson 10)
+
+BACKEND
+folders: models
+orderModel > updated with deliveryDays, carrierName, trackingNumber
+productModel > updated with name, comment, rating
+userModel > updated with resetToken
+
+folders: routes
+orderRoutes.js > updated with count in stock, deliveryDays, carrierName, trackingNumber
+productRoutes.js > updated with reviews
+stripeRoutes.js > added
+userRoutes.js > updated with forget and reset password
+
+env > updated with stripe, email, nodemailer
+server.js > updated with stripe
+utils.js > updated with nodemailer confirmation emails
+
+FRONTEND
+folders: components
+StripeCheckout.js
+AdminPagination.js > added, this separates pagination with protected routes
+
+folders: pages
+ProductEdit.js > updated to fix error line 74
+ForgetPassword.js > added
+ResetPassword.js > added
+SignIn.js > updated with ResetPassword Link
+Signup.js > updated with Regex
+Profile.js > updated to show password
+PaymentMethod.js > updated with stripe
+OrderDetails.js > updated with deliveryDays, carrierName, trackingNumber
+OrderList.js > updated with Form for deliveryDays, carrierName, trackingNumber
+
+App.js > updated
+{}package.json > added stripe (npm install --force)
+
+Git 10th commit

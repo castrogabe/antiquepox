@@ -46,7 +46,7 @@ export default function Signin() {
         <title>Sign In</title>
       </Helmet>
       <br />
-      <h1 className='box'>Sign In</h1>
+      <h4 className='box'>Sign In</h4>
       <Row>
         <Col md={6}>
           <Form onSubmit={submitHandler} className='box'>
@@ -54,6 +54,7 @@ export default function Signin() {
               <Form.Label>Email</Form.Label>
               <Form.Control
                 type='email'
+                placeholder='email'
                 required
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -62,6 +63,7 @@ export default function Signin() {
               <Form.Label>Password</Form.Label>
               <Form.Control
                 type='password'
+                placeholder='Minimum length 8, 1 uppercase, 1 lowercase, 1 digit, and 1 special character'
                 required
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -75,6 +77,10 @@ export default function Signin() {
               <Link to={`/signup?redirect=${redirect}`}>
                 Create your account
               </Link>
+            </div>
+            <div className='mb-3'>
+              Forget Password?{' '}
+              <Link to={`/forget-password`}>Reset Password</Link>
             </div>
           </Form>
         </Col>

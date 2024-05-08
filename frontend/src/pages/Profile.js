@@ -1,6 +1,6 @@
 import React, { useContext, useReducer, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Form, Button, Container } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import { Store } from '../Store';
 import { toast } from 'react-toastify';
 import { getError } from '../utils';
@@ -19,13 +19,16 @@ const reducer = (state, action) => {
   }
 };
 
-const ProfileScreen = () => {
+export default function Profile() {
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { userInfo } = state;
   const [name, setName] = useState(userInfo.name);
   const [email, setEmail] = useState(userInfo.email);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // lesson 10
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // lesson 10
+
   const [{ loadingUpdate }, dispatch] = useReducer(reducer, {
     loadingUpdate: false,
   });
@@ -33,38 +36,49 @@ const ProfileScreen = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
+      dispatch({ type: 'UPDATE_REQUEST' });
       const { data } = await axios.put(
         '/api/users/profile',
         {
           name,
           email,
           password,
+          loadingUpdate, // lesson 10
         },
         {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         }
       );
-      dispatch({
-        type: 'UPDATE_SUCCESS',
-      });
+
+      dispatch({ type: 'UPDATE_SUCCESS' });
       ctxDispatch({ type: 'USER_SIGNIN', payload: data });
       localStorage.setItem('userInfo', JSON.stringify(data));
-      toast.success('User updated successfully');
-    } catch (err) {
-      dispatch({
-        type: 'UPDATE_FAIL',
+      toast.success('User updated successfully', {
+        autoClose: 1000,
       });
+    } catch (err) {
+      dispatch({ type: 'UPDATE_FAIL' });
       toast.error(getError(err));
     }
   };
 
+  // Function to toggle password visibility lesson 10
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword); // Toggle showPassword state
+  };
+
+  // Function to toggle confirm password visibility lesson 10
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword); // Toggle showConfirmPassword state
+  };
+
   return (
-    <Container className='small-container'>
+    <div className='container small-container'>
       <Helmet>
         <title>User Profile</title>
       </Helmet>
       <br />
-      <h1 className='box'>User Profile</h1>
+      <h4 className='box'>User Profile</h4>
       <form onSubmit={submitHandler}>
         <Form.Group className='mb-3' controlId='name'>
           <Form.Label>Name</Form.Label>
@@ -74,7 +88,8 @@ const ProfileScreen = () => {
             required
           />
         </Form.Group>
-        <Form.Group className='mb-3' controlId='name'>
+
+        <Form.Group className='mb-3' controlId='email'>
           <Form.Label>Email</Form.Label>
           <Form.Control
             type='email'
@@ -83,27 +98,55 @@ const ProfileScreen = () => {
             required
           />
         </Form.Group>
+
         <Form.Group className='mb-3' controlId='password'>
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type='password'
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <Form.Label>New Password</Form.Label>
+          <div className='input-group'>
+            <Form.Control
+              type={showPassword ? 'text' : 'password'}
+              placeholder='Minimum length 8, 1 uppercase, 1 lowercase, 1 digit, and 1 special character'
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button
+              variant='outline-secondary'
+              onClick={togglePasswordVisibility}
+            >
+              <i
+                className={`fa ${showPassword ? 'fas fa-eye-slash' : 'fa-eye'}`}
+              ></i>
+            </Button>
+          </div>
         </Form.Group>
-        <Form.Group className='mb-3' controlId='password'>
-          <Form.Label>Confirm Password</Form.Label>
-          <Form.Control
-            type='password'
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
+
+        <Form.Group className='mb-3' controlId='confirmPassword'>
+          <Form.Label>Confirm New Password</Form.Label>
+          <div className='input-group'>
+            <Form.Control
+              type={showConfirmPassword ? 'text' : 'password'}
+              placeholder='Minimum length 8, 1 uppercase, 1 lowercase, 1 digit, and 1 special character'
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+            <Button
+              variant='outline-secondary'
+              onClick={toggleConfirmPasswordVisibility}
+            >
+              <i
+                className={`fa ${
+                  showConfirmPassword ? 'fas fa-eye-slash' : 'fa-eye'
+                }`}
+              ></i>
+            </Button>
+          </div>
         </Form.Group>
 
         <div className='mb-3'>
           <Button type='submit'>Update</Button>
         </div>
       </form>
-    </Container>
+    </div>
   );
-};
-
-export default ProfileScreen;
+}

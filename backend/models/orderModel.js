@@ -40,6 +40,9 @@ const orderSchema = new mongoose.Schema(
     paidAt: { type: Date },
     isShipped: { type: Boolean, default: false },
     shippedAt: { type: Date },
+    deliveryDays: { type: String }, // lesson 10
+    carrierName: { type: String }, // lesson 10
+    trackingNumber: { type: String }, // lesson 10
   },
   {
     timestamps: true,

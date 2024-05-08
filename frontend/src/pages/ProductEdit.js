@@ -1,16 +1,14 @@
-// Importing required modules and functions
-import React, { useContext, useEffect, useReducer, useState } from 'react'; // Importing React and its hooks
-import { useNavigate, useParams } from 'react-router-dom'; // Importing React Router hooks
-import { toast } from 'react-toastify'; // Importing toast notification library
-import axios from 'axios'; // Importing Axios for making HTTP requests
-import { Store } from '../Store'; // Importing Store context
-import { getError } from '../utils'; // Importing utility function
-import { Container, Form, Button, ListGroup } from 'react-bootstrap'; // Importing Bootstrap components
-import { Helmet } from 'react-helmet-async'; // Importing Helmet for managing document head
-import LoadingBox from '../components/LoadingBox'; // Importing loading spinner component
-import MessageBox from '../components/MessageBox'; // Importing message box component
+import React, { useContext, useEffect, useReducer, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+import { Store } from '../Store';
+import { getError } from '../utils';
+import { Container, Form, Button, ListGroup } from 'react-bootstrap';
+import { Helmet } from 'react-helmet-async';
+import LoadingBox from '../components/LoadingBox';
+import MessageBox from '../components/MessageBox';
 
-// Reducer function for managing state
 const reducer = (state, action) => {
   switch (action.type) {
     case 'FETCH_REQUEST':
@@ -36,21 +34,19 @@ const reducer = (state, action) => {
   }
 };
 
-// Main component for editing products
 export default function ProductEdit() {
-  const navigate = useNavigate(); // Initializing navigate hook
-  const params = useParams(); // /product/:id
-  const { id: productId } = params; // Extracting product ID from params
+  const navigate = useNavigate();
+  const params = useParams();
+  const { id: productId } = params;
 
-  const { state } = useContext(Store); // Accessing state from Store context
-  const { userInfo } = state; // Destructuring user info from state
+  const { state } = useContext(Store);
+  const { userInfo } = state;
   const [{ loading, error, loadingUpdate, loadingUpload }, dispatch] =
     useReducer(reducer, {
       loading: true,
       error: '',
-    }); // Initializing state and dispatch function with useReducer hook
+    });
 
-  // Initializing state variables using useState hook
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [price, setPrice] = useState('');
@@ -62,40 +58,38 @@ export default function ProductEdit() {
   const [finish, setFinish] = useState('');
   const [description, setDescription] = useState('');
 
-  // Effect hook to fetch product data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        dispatch({ type: 'FETCH_REQUEST' }); // Dispatching fetch request action
-        const { data } = await axios.get(`/api/products/${productId}`); // Fetching product data
-        setName(data.name); // Setting product name
-        setSlug(data.slug); // Setting product slug
-        setPrice(data.price); // Setting product price
-        setImage(data.image); // Setting product image
-        setImages(data.images); // Setting product images
-        setCategory(data.category); // Setting product category
-        setCountInStock(data.countInStock); // Setting product count in stock
-        setFrom(data.from); // Setting product origin
-        setFinish(data.setFinish); // Setting product finish
-        setDescription(data.description); // Setting product description
-        dispatch({ type: 'FETCH_SUCCESS' }); // Dispatching fetch success action
+        dispatch({ type: 'FETCH_REQUEST' });
+        const { data } = await axios.get(`/api/products/${productId}`);
+        setName(data.name);
+        setSlug(data.slug);
+        setPrice(data.price);
+        setImage(data.image);
+        setImages(data.images);
+        setCategory(data.category);
+        setCountInStock(data.countInStock);
+        setFrom(data.from);
+        setFinish(data.finish); // error should be this
+        setDescription(data.description);
+        dispatch({ type: 'FETCH_SUCCESS' });
       } catch (err) {
         dispatch({
           type: 'FETCH_FAIL',
           payload: getError(err),
-        }); // Dispatching fetch fail action with error payload
+        });
       }
     };
-    fetchData(); // Calling fetchData function
-  }, [productId]); // Dependencies: productId
+    fetchData();
+  }, [productId]);
 
-  // Handler function for form submission
   const submitHandler = async (e) => {
-    e.preventDefault(); // Preventing default form submission behavior
+    e.preventDefault();
     try {
-      dispatch({ type: 'UPDATE_REQUEST' }); // Dispatching update request action
+      dispatch({ type: 'UPDATE_REQUEST' });
       await axios.put(
-        `/api/products/${productId}`, // PUT request to update product
+        `/api/products/${productId}`,
         {
           _id: productId,
           name,
@@ -110,63 +104,60 @@ export default function ProductEdit() {
           description,
         },
         {
-          headers: { Authorization: `Bearer ${userInfo.token}` }, // Setting authorization header
+          headers: { Authorization: `Bearer ${userInfo.token}` },
         }
       );
       dispatch({
         type: 'UPDATE_SUCCESS',
-      }); // Dispatching update success action
+      });
       toast.success('Product updated successfully', {
         autoClose: 1000, // Display success message for 1 second
-      }); // Showing success toast notification
+      });
       setTimeout(() => {
-        navigate('/admin/products'); // Navigating to '/admin/products' after 1 second
-      }, 1000); // Delay: 1000 ms
+        navigate('/admin/products');
+      }, 1000);
     } catch (err) {
-      toast.error(getError(err)); // Showing error toast notification
-      dispatch({ type: 'UPDATE_FAIL' }); // Dispatching update fail action
+      toast.error(getError(err));
+      dispatch({ type: 'UPDATE_FAIL' });
     }
   };
 
-  // Handler function for uploading files
   const uploadFileHandler = async (e, forImages) => {
-    const file = e.target.files[0]; // Getting uploaded file
-    const bodyFormData = new FormData(); // Creating FormData object
-    bodyFormData.append('file', file); // Appending file to FormData object
+    const file = e.target.files[0];
+    const bodyFormData = new FormData();
+    bodyFormData.append('file', file);
     try {
-      dispatch({ type: 'UPLOAD_REQUEST' }); // Dispatching upload request action
+      dispatch({ type: 'UPLOAD_REQUEST' });
       const { data } = await axios.post('/api/upload', bodyFormData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          authorization: `Bearer ${userInfo.token}`, // Setting authorization header
+          authorization: `Bearer ${userInfo.token}`,
         },
       });
-      dispatch({ type: 'UPLOAD_SUCCESS' }); // Dispatching upload success action
+      dispatch({ type: 'UPLOAD_SUCCESS' });
 
       if (forImages) {
-        setImages([...images, data.secure_url]); // Adding uploaded image URL to images array
+        setImages([...images, data.secure_url]);
       } else {
-        setImage(data.secure_url); // Setting image URL
+        setImage(data.secure_url);
       }
       toast.success('Image uploaded successfully. click Update to apply it', {
-        autoClose: 1000, // Display success message for 1 second
-      }); // Showing success toast notification
+        autoClose: 1000,
+      });
     } catch (err) {
-      toast.error(getError(err)); // Showing error toast notification
-      dispatch({ type: 'UPLOAD_FAIL', payload: getError(err) }); // Dispatching upload fail action with error payload
+      toast.error(getError(err));
+      dispatch({ type: 'UPLOAD_FAIL', payload: getError(err) });
     }
   };
 
-  // Handler function for deleting files
   const deleteFileHandler = async (fileName, f) => {
-    console.log(fileName, f); // Logging filename and f
-    console.log(images); // Logging images array
-    console.log(images.filter((x) => x !== fileName)); // Logging filtered images array
-    setImages(images.filter((x) => x !== fileName)); // Updating images array by removing deleted file
-    toast.success('Image removed successfully. click Update to apply it'); // Showing success toast notification
+    console.log(fileName, f);
+    console.log(images);
+    console.log(images.filter((x) => x !== fileName));
+    setImages(images.filter((x) => x !== fileName));
+    toast.success('Image removed successfully. click Update to apply it');
   };
 
-  // Rendering UI components
   return (
     <Container className='small-screen'>
       <Helmet>
@@ -181,8 +172,6 @@ export default function ProductEdit() {
         <MessageBox variant='danger'>{error}</MessageBox>
       ) : (
         <Form onSubmit={submitHandler}>
-          {' '}
-          {/* Product name input field */}
           <Form.Group className='mb-3' controlId='name'>
             <Form.Label>Name</Form.Label>
             <Form.Control
@@ -191,7 +180,7 @@ export default function ProductEdit() {
               required
             />
           </Form.Group>
-          {/* Product slug input field */}
+
           <Form.Group className='mb-3' controlId='slug'>
             <Form.Label>Slug</Form.Label>
             <Form.Control
@@ -200,7 +189,7 @@ export default function ProductEdit() {
               required
             />
           </Form.Group>
-          {/* Product price input field */}
+
           <Form.Group className='mb-3' controlId='name'>
             <Form.Label>Price</Form.Label>
             <Form.Control
@@ -209,7 +198,7 @@ export default function ProductEdit() {
               required
             />
           </Form.Group>
-          {/* Product image input field */}
+
           <Form.Group className='mb-3' controlId='image'>
             <Form.Label>Image File</Form.Label>
             <Form.Control
@@ -218,18 +207,17 @@ export default function ProductEdit() {
               required
             />
           </Form.Group>
-          {/* Upload image input field */}
+
           <Form.Group className='mb-3' controlId='imageFile'>
             <Form.Label>Upload Image</Form.Label>
             <Form.Control type='file' onChange={uploadFileHandler} />
             {loadingUpload && <LoadingBox delay={1000} />}
           </Form.Group>
-          {/* Additional images input field */}
+
           <Form.Group className='mb-3' controlId='additionalImage'>
             <Form.Label>Additional Images</Form.Label>
             {images.length === 0 && <MessageBox>No image</MessageBox>}
             <ListGroup variant='flush'>
-              {/* Mapping through additional images */}
               {images.map((x) => (
                 <ListGroup.Item key={x}>
                   {x}
@@ -240,7 +228,7 @@ export default function ProductEdit() {
               ))}
             </ListGroup>
           </Form.Group>
-          {/* Upload additional images input field */}
+
           <Form.Group className='mb-3' controlId='additionalImageFile'>
             <Form.Label>Upload Additional Image</Form.Label>
             <Form.Control
@@ -249,7 +237,7 @@ export default function ProductEdit() {
             />
             {loadingUpload && <LoadingBox delay={1000} />}
           </Form.Group>
-          {/* Product category input field */}
+
           <Form.Group className='mb-3' controlId='category'>
             <Form.Label>Category</Form.Label>
             <Form.Control
@@ -258,7 +246,7 @@ export default function ProductEdit() {
               required
             />
           </Form.Group>
-          {/* Product origin input field */}
+
           <Form.Group className='mb-3' controlId='from'>
             <Form.Label>From</Form.Label>
             <Form.Control
@@ -267,7 +255,7 @@ export default function ProductEdit() {
               required
             />
           </Form.Group>
-          {/* Product finish input field */}
+
           <Form.Group className='mb-3' controlId='finish'>
             <Form.Label>Finish</Form.Label>
             <Form.Control
@@ -276,7 +264,7 @@ export default function ProductEdit() {
               required
             />
           </Form.Group>
-          {/* Product count in stock input field */}
+
           <Form.Group className='mb-3' controlId='countInStock'>
             <Form.Label>Count In Stock</Form.Label>
             <Form.Control
@@ -285,7 +273,7 @@ export default function ProductEdit() {
               required
             />
           </Form.Group>
-          {/* Product description input field */}
+
           <Form.Group className='mb-3' controlId='description'>
             <Form.Label>Description</Form.Label>
             <Form.Control
@@ -296,7 +284,7 @@ export default function ProductEdit() {
               required
             />
           </Form.Group>
-          {/* Update button */}
+
           <div className='mb-3'>
             <Button disabled={loadingUpdate} type='submit'>
               Update

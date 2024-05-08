@@ -3,19 +3,24 @@ import expressAsyncHandler from 'express-async-handler';
 import Order from '../models/orderModel.js';
 import User from '../models/userModel.js';
 import Product from '../models/productModel.js';
-import { isAuth, isAdmin } from '../utils.js';
+import {
+  isAuth,
+  isAdmin,
+  payOrderEmailTemplate,
+  shipOrderEmailTemplate,
+  sendShippingConfirmationEmail,
+  transporter,
+} from '../utils.js';
 
 const orderRouter = express.Router();
 
-// lesson 9
-// Route to get all orders, only accessible to admin users
 orderRouter.get(
   '/',
-  isAuth, // Middleware to ensure user is authenticated
-  isAdmin, // Middleware to ensure user is an admin
+  isAuth,
+  isAdmin,
   expressAsyncHandler(async (req, res) => {
-    const orders = await Order.find().populate('user', 'name email'); // Finding all orders and populating user details
-    res.send(orders); // Sending the orders in the response
+    const orders = await Order.find().populate('user', 'name email');
+    res.send(orders);
   })
 );
 
@@ -105,30 +110,14 @@ orderRouter.get(
   })
 );
 
-// lesson 9
-// Route to mark an order as shipped
-orderRouter.put(
-  '/:id/shipped',
-  isAuth, // Middleware to ensure user is authenticated
-  expressAsyncHandler(async (req, res) => {
-    const order = await Order.findById(req.params.id);
-    if (order) {
-      order.isShipped = true;
-      order.shippedAt = Date.now();
-      await order.save();
-      res.send({ message: 'Order Shipped' });
-    } else {
-      res.status(404).send({ message: 'Order Not Found' });
-    }
-  })
-);
-
 orderRouter.put(
   '/:id/pay',
   isAuth,
   expressAsyncHandler(async (req, res) => {
-    const orders = await Order.find().populate('user', 'name email');
-
+    const order = await Order.findById(req.params.id).populate(
+      'user',
+      'name email'
+    );
     if (order) {
       order.isPaid = true;
       order.paidAt = Date.now();
@@ -139,24 +128,107 @@ orderRouter.put(
         email_address: req.body.email_address,
       };
 
+      // lesson 10
+      // Update count in stock for each item in the order
       const updatedOrder = await order.save();
-      res.send({ message: 'Order Paid', order: updatedOrder });
+      for (const index in updatedOrder.orderItems) {
+        const item = updatedOrder.orderItems[index];
+        const product = await Product.findById(item.product);
+        product.countInStock -= item.quantity; // Subtract the value of item.quantity from countInStock
+        product.sold += item.quantity;
+        await product.save();
+      }
+
+      // Send email notification based on payment method
+      const customerEmail = order.user.email;
+      let emailContent = {}; // Define emailContent variable
+      if (order.paymentMethod === 'PayPal') {
+        // Define purchaseDetails for PayPal
+        const purchaseDetails = payOrderEmailTemplate(order);
+        emailContent = {
+          from: 'gabudemy@gmail.com', // add your email
+          to: customerEmail,
+          subject: 'PayPal Purchase Receipt from antiquepox.com', // email subject
+          html: purchaseDetails,
+        };
+      } else if (order.paymentMethod === 'Stripe') {
+        // Define purchaseDetails for Stripe
+        const purchaseDetails = payOrderEmailTemplate(order);
+        emailContent = {
+          from: 'gabudemy@gmail.com', // add your email
+          to: customerEmail,
+          subject: 'Stripe Purchase Receipt from antiquepox.com', // email subject
+          html: purchaseDetails,
+        };
+      }
+      try {
+        // Send the email using the transporter
+        const info = await transporter.sendMail(emailContent);
+        console.log('Email sent:', info.messageId);
+        res.send({ message: 'Order Paid', order: updatedOrder });
+      } catch (error) {
+        console.error('Error sending email:', error);
+        res.status(500).send({ message: 'Failed to send email' });
+      }
     } else {
       res.status(404).send({ message: 'Order Not Found' });
     }
   })
 );
 
-// lesson 9
-// Route to delete an order by ID
+// ****************** send shipping confirmation email ************************************
+orderRouter.put(
+  '/:id/shipped',
+  isAuth,
+  expressAsyncHandler(async (req, res) => {
+    const orderId = req.params.id;
+    const order = await Order.findById(orderId).populate('user', 'name email');
+
+    if (!order) {
+      res.status(404).send({ message: 'Order Not Found' });
+      return;
+    }
+
+    order.isShipped = true;
+    order.shippedAt = Date.now();
+    order.deliveryDays = req.body.deliveryDays;
+    order.carrierName = req.body.carrierName;
+    order.trackingNumber = req.body.trackingNumber;
+
+    // send shipping confirmation email to customer when the order ships
+    const customerEmail = order.user.email;
+    const shippingDetails = shipOrderEmailTemplate(order);
+
+    // Create email content for the shipping confirmation
+    const emailContent = {
+      from: 'gabudemy@gmail.com',
+      to: customerEmail,
+      subject: 'Shipping notification from antiquepox.com', // email subject
+      html: shippingDetails,
+    };
+
+    try {
+      // Update and save the order
+      const updatedOrder = await order.save();
+      await sendShippingConfirmationEmail(req, updatedOrder);
+      res.send({ message: 'Order Shipped', order: updatedOrder });
+    } catch (error) {
+      console.error('Error updating order:', error);
+      res.status(500).send({ message: 'Failed to ship order' });
+    }
+  })
+);
+
+// ***********************************************************************************
+
 orderRouter.delete(
   '/:id',
-  isAuth, // Middleware to ensure user is authenticated
-  isAdmin, // Middleware to ensure user is an admin
+  isAuth,
+  isAdmin,
   expressAsyncHandler(async (req, res) => {
     const order = await Order.findById(req.params.id);
     if (order) {
-      await order.remove(); // Removing the order
+      await order.remove();
       res.send({ message: 'Order Deleted' });
     } else {
       res.status(404).send({ message: 'Order Not Found' });

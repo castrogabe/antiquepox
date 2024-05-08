@@ -12,9 +12,14 @@ import ProtectedRoute from './components/ProtectedRoute';
 // admin pages
 import Dashboard from './pages/Dashboard';
 import ProductList from './pages/ProductList';
+import ProductEdit from './pages/ProductEdit';
+import OrderList from './pages/OrderList';
+import UserList from './pages/UserList';
+import UserEdit from './pages/UserEdit';
 
 // pages
 import AboutUs from './pages/AboutUs';
+import AskedQuestions from './pages/AskedQuestions';
 import Cart from './pages/Cart';
 import Gallery from './pages/Gallery';
 import Home from './pages/Home';
@@ -27,14 +32,11 @@ import Profile from './pages/Profile';
 import ShippingAddress from './pages/ShippingAddress';
 import Signin from './pages/Signin';
 import Signup from './pages/Signup';
-import AskedQuestions from './pages/AskedQuestions';
 import Design from './pages/Design';
 import Search from './pages/Search';
 
-import ProductEdit from './pages/ProductEdit'; // lesson 9
-import OrderList from './pages/OrderList'; // lesson 9
-import UserList from './pages/UserList'; // lesson 9
-import UserEdit from './pages/UserEdit'; // lesson 9
+import ForgetPassword from './pages/ForgetPassword'; // lesson 10
+import ResetPassword from './pages/ResetPassword'; // lesson 10
 
 function App() {
   return (
@@ -56,6 +58,10 @@ function App() {
           <Route path='/shipping' element={<ShippingAddress />} />
           <Route path='/signin' element={<Signin />} />
           <Route path='/signup' element={<Signup />} />
+
+          {/* Lesson 10 */}
+          <Route path='/forget-password' element={<ForgetPassword />} />
+          <Route path='/reset-password/:token' element={<ResetPassword />} />
 
           {/* Protected Routes */}
           <Route
@@ -100,8 +106,6 @@ function App() {
               </AdminRoute>
             }
           />
-
-          {/* lesson 9 */}
           <Route
             path='/admin/orders'
             element={
