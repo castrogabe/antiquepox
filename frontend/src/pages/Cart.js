@@ -134,7 +134,7 @@ export default function Cart() {
 }
 
 // step 1 (Cart) <= CURRENT STEP
-// step 2 (ShippingAddress2Screen)
+// step 2 (ShippingAddress)
 // step 3 (PaymentMethod) select radial button for PayPal or Stripe
 // step 4 (PlaceOrder)
-// lands on (Order) for payment
+// lands on OrderDetails for payment

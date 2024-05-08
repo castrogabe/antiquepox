@@ -256,3 +256,27 @@ Store.js > updated to SAVE_SHIPPING_ADDRESS
 App.js > updated added 3 pages, ToastContainer
 
 Git 6th commit
+
+# Seventh Commit-OrderHistory (Lesson 7)
+
+BACKEND
+folder: models
+orderModel.js > added
+
+folder: routes
+orderRoutes.js > added
+userRoutes.js > updated with profile
+
+server.js > updated with api/orders
+utils.js > updated with isAuth
+
+FRONTEND
+folder: pages
+Profile.js > added,
+PlaceOrder.js > added,
+OrderDetails.js > added,
+OrderHistory.js > added,
+
+App.js > updated added 4 pages
+
+Git 7th commit

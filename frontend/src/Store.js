@@ -1,13 +1,12 @@
 import { createContext, useReducer } from 'react';
 
 export const Store = createContext();
+
 const initialState = {
-  // Retrieve user information from local storage if available
   userInfo: localStorage.getItem('userInfo')
     ? JSON.parse(localStorage.getItem('userInfo'))
     : null,
 
-  // Cart information, including shipping address, payment method, and cart items
   cart: {
     shippingAddress: localStorage.getItem('shippingAddress')
       ? JSON.parse(localStorage.getItem('shippingAddress'))
@@ -15,16 +14,15 @@ const initialState = {
     paymentMethod: localStorage.getItem('paymentMethod')
       ? localStorage.getItem('paymentMethod')
       : '',
-
     cartItems: localStorage.getItem('cartItems')
       ? JSON.parse(localStorage.getItem('cartItems'))
       : [],
   },
 };
-
 function reducer(state, action) {
   switch (action.type) {
     case 'CART_ADD_ITEM':
+      // add to cart
       const newItem = action.payload;
       const existItem = state.cart.cartItems.find(
         (item) => item._id === newItem._id
@@ -43,6 +41,9 @@ function reducer(state, action) {
       localStorage.setItem('cartItems', JSON.stringify(cartItems));
       return { ...state, cart: { ...state.cart, cartItems } };
     }
+    case 'CART_CLEAR':
+      return { ...state, cart: { ...state.cart, cartItems: [] } };
+
     case 'USER_SIGNIN':
       return { ...state, userInfo: action.payload };
     case 'USER_SIGNOUT':
@@ -55,7 +56,6 @@ function reducer(state, action) {
           paymentMethod: '',
         },
       };
-    // Save shipping address action
     case 'SAVE_SHIPPING_ADDRESS':
       return {
         ...state,
@@ -64,7 +64,6 @@ function reducer(state, action) {
           shippingAddress: action.payload,
         },
       };
-    // Save payment method action
     case 'SAVE_PAYMENT_METHOD':
       return {
         ...state,
