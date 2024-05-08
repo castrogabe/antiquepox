@@ -3,9 +3,22 @@ import expressAsyncHandler from 'express-async-handler';
 import Order from '../models/orderModel.js';
 import User from '../models/userModel.js';
 import Product from '../models/productModel.js';
-import { isAuth, isAdmin } from '../utils.js'; // lesson 8
+import { isAuth, isAdmin } from '../utils.js';
 
 const orderRouter = express.Router();
+
+// lesson 9
+// Route to get all orders, only accessible to admin users
+orderRouter.get(
+  '/',
+  isAuth, // Middleware to ensure user is authenticated
+  isAdmin, // Middleware to ensure user is an admin
+  expressAsyncHandler(async (req, res) => {
+    const orders = await Order.find().populate('user', 'name email'); // Finding all orders and populating user details
+    res.send(orders); // Sending the orders in the response
+  })
+);
+
 orderRouter.post(
   '/',
   isAuth,
@@ -26,19 +39,13 @@ orderRouter.post(
   })
 );
 
-// lesson 8
-
-// Route for getting summary data for auth users and admin
 orderRouter.get(
   '/summary',
-  isAuth, // Middleware for authentication
-  isAdmin, // Middleware for admin authorization
+  isAuth,
+  isAdmin,
   expressAsyncHandler(async (req, res) => {
-    // Aggregation operations process multiple documents and return computed results
-    // Aggregating order data for summary
     const orders = await Order.aggregate([
       {
-        // groups all _id: orders and combines them in totalPrice
         $group: {
           _id: null,
           numOrders: { $sum: 1 },
@@ -46,32 +53,24 @@ orderRouter.get(
         },
       },
     ]);
-
-    // Aggregating user data for summary
     const users = await User.aggregate([
       {
-        // groups all users and combines them in numUsers
         $group: {
           _id: null,
           numUsers: { $sum: 1 },
         },
       },
     ]);
-
-    // Aggregating daily order data for summary
     const dailyOrders = await Order.aggregate([
       {
         $group: {
-          // _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-          _id: { $dateToString: { format: '%m-%d-%Y', date: '$createdAt' } },
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
           orders: { $sum: 1 },
           sales: { $sum: '$totalPrice' },
         },
       },
       { $sort: { _id: 1 } },
     ]);
-
-    // Aggregating product category data for summary
     const productCategories = await Product.aggregate([
       {
         $group: {
@@ -80,13 +79,9 @@ orderRouter.get(
         },
       },
     ]);
-
-    // Sending summary data as response
     res.send({ users, orders, dailyOrders, productCategories });
   })
 );
-
-// end lesson 8
 
 orderRouter.get(
   '/mine',
@@ -110,11 +105,30 @@ orderRouter.get(
   })
 );
 
+// lesson 9
+// Route to mark an order as shipped
+orderRouter.put(
+  '/:id/shipped',
+  isAuth, // Middleware to ensure user is authenticated
+  expressAsyncHandler(async (req, res) => {
+    const order = await Order.findById(req.params.id);
+    if (order) {
+      order.isShipped = true;
+      order.shippedAt = Date.now();
+      await order.save();
+      res.send({ message: 'Order Shipped' });
+    } else {
+      res.status(404).send({ message: 'Order Not Found' });
+    }
+  })
+);
+
 orderRouter.put(
   '/:id/pay',
   isAuth,
   expressAsyncHandler(async (req, res) => {
-    const order = await Order.findById(req.params.id);
+    const orders = await Order.find().populate('user', 'name email');
+
     if (order) {
       order.isPaid = true;
       order.paidAt = Date.now();
@@ -127,6 +141,23 @@ orderRouter.put(
 
       const updatedOrder = await order.save();
       res.send({ message: 'Order Paid', order: updatedOrder });
+    } else {
+      res.status(404).send({ message: 'Order Not Found' });
+    }
+  })
+);
+
+// lesson 9
+// Route to delete an order by ID
+orderRouter.delete(
+  '/:id',
+  isAuth, // Middleware to ensure user is authenticated
+  isAdmin, // Middleware to ensure user is an admin
+  expressAsyncHandler(async (req, res) => {
+    const order = await Order.findById(req.params.id);
+    if (order) {
+      await order.remove(); // Removing the order
+      res.send({ message: 'Order Deleted' });
     } else {
       res.status(404).send({ message: 'Order Not Found' });
     }

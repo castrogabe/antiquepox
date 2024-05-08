@@ -1,6 +1,6 @@
 import React, { useContext, useReducer, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Container } from 'react-bootstrap';
 import { Store } from '../Store';
 import { toast } from 'react-toastify';
 import { getError } from '../utils';
@@ -59,7 +59,7 @@ const ProfileScreen = () => {
   };
 
   return (
-    <div className='container small-container'>
+    <Container className='small-container'>
       <Helmet>
         <title>User Profile</title>
       </Helmet>
@@ -102,7 +102,7 @@ const ProfileScreen = () => {
           <Button type='submit'>Update</Button>
         </div>
       </form>
-    </div>
+    </Container>
   );
 };
 

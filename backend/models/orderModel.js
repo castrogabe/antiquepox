@@ -1,9 +1,7 @@
 import mongoose from 'mongoose';
 
-// Define the order schema
 const orderSchema = new mongoose.Schema(
   {
-    // Order items with details
     orderItems: [
       {
         slug: { type: String, required: true },
@@ -18,8 +16,6 @@ const orderSchema = new mongoose.Schema(
         },
       },
     ],
-
-    // Shipping address details
     shippingAddress: {
       fullName: { type: String, required: true },
       address: { type: String, required: true },
@@ -28,8 +24,6 @@ const orderSchema = new mongoose.Schema(
       postalCode: { type: String, required: true },
       country: { type: String, required: true },
     },
-
-    // Payment method and result details
     paymentMethod: { type: String, required: true },
     paymentResult: {
       id: String,
@@ -37,28 +31,20 @@ const orderSchema = new mongoose.Schema(
       update_time: String,
       email_address: String,
     },
-
-    // Prices and totals
     itemsPrice: { type: Number, required: true },
     shippingPrice: { type: Number, required: true },
     taxPrice: { type: Number, required: true },
     totalPrice: { type: Number, required: true },
-
-    // User reference
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-
-    // Payment and delivery status
     isPaid: { type: Boolean, default: false },
     paidAt: { type: Date },
-    isDelivered: { type: Boolean, default: false },
-    deliveredAt: { type: Date },
+    isShipped: { type: Boolean, default: false },
+    shippedAt: { type: Date },
   },
   {
-    timestamps: true, // Automatically add 'createdAt' and 'updatedAt' timestamps
+    timestamps: true,
   }
 );
 
-// Create the Order model from the schema
 const Order = mongoose.model('Order', orderSchema);
-
 export default Order;

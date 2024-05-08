@@ -314,3 +314,33 @@ Home.js > updated with pagination component
 App.js > updated with 5 pages, AdminRoute, ProtectedRoute
 
 Git 8th commit
+
+# Ninth Commit-Admin, Part 2 of 4 (lesson 9)
+
+BACKEND
+folder: models
+productModel.js > updated for images
+
+folder: routes
+orderRoutes.js > updated
+productRoutes.js > updated product count in database/images
+uploadRoutes.js > added - Cloudinary
+
+server.js > updated with uploadRoutes
+.env > update with Cloudinary
+{}package.json > updated
+
+FRONTEND
+folders: components
+Header.js > logo fix remove .
+
+folders: pages
+ProductList > update to show count in database h4
+ProductEdit.js > added
+OrderList.js > added
+UserList.js > added
+UserEdit.js > added
+ProductMag.js > updated
+
+App.js > updated with 4 pages
+signup to Cloudinary

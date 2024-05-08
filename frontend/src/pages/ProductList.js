@@ -1,16 +1,15 @@
 import React, { useContext, useEffect, useReducer } from 'react';
 import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
-import { useLocation, useNavigate, Link } from 'react-router-dom'; // React Router hooks for navigation
-import { Row, Col, Button, Table } from 'react-bootstrap'; // Bootstrap components
-import { LinkContainer } from 'react-router-bootstrap'; // Container component for React Router links
-import { toast } from 'react-toastify'; // Toast notification library
-import { Store } from '../Store'; // Context store
-import LoadingBox from '../components/LoadingBox'; // Loading indicator component
-import MessageBox from '../components/MessageBox'; // Message box component
-import { getError } from '../utils'; // Utility function to handle errors
+import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { Row, Col, Button, Table } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
+import { toast } from 'react-toastify';
+import { Store } from '../Store';
+import LoadingBox from '../components/LoadingBox';
+import MessageBox from '../components/MessageBox';
+import { getError } from '../utils';
 
-// Reducer function to manage state of products from backend
 const reducer = (state, action) => {
   switch (action.type) {
     case 'FETCH_REQUEST':
@@ -19,6 +18,7 @@ const reducer = (state, action) => {
       return {
         ...state,
         products: action.payload.products,
+        totalProducts: action.payload.totalProducts, // Include totalProducts in the state
         page: action.payload.page,
         pages: action.payload.pages,
         loading: false,
@@ -51,95 +51,92 @@ const reducer = (state, action) => {
   }
 };
 
-// ProductListScreen component
 export default function ProductList() {
   const [
     {
       loading,
       error,
       products,
+      totalProducts, // totalProducts display in h4
       pages,
       loadingCreate,
       loadingDelete,
       successDelete,
     },
-    dispatch, // using dispatch to call the actions
+    dispatch,
   ] = useReducer(reducer, {
     loading: true,
     error: '',
+    products: [], // Ensure products is initialized as an empty array
   });
 
-  const navigate = useNavigate(); // Navigation hook
-  const { search } = useLocation(); // Location hook to access query parameters
+  const navigate = useNavigate();
+  const { search } = useLocation();
   const sp = new URLSearchParams(search);
-  const page = sp.get('page') || 1; // Get page number from query parameter
-
-  const { state } = useContext(Store); // Accessing global state from context
-  const { userInfo } = state; // Destructure userInfo from global state
+  const page = sp.get('page') || 1;
+  const { state } = useContext(Store);
+  const { userInfo } = state;
 
   useEffect(() => {
     const fetchData = async () => {
-      // Adding a ajax request to the backend to get the products for the admin user
       try {
         const { data } = await axios.get(`/api/products/admin?page=${page}`, {
-          headers: { Authorization: `Bearer ${userInfo.token}` }, // Add authorization token to request headers
+          headers: { Authorization: `Bearer ${userInfo.token}` },
         });
-        dispatch({ type: 'FETCH_SUCCESS', payload: data }); // Dispatch success action with fetched data
+        dispatch({ type: 'FETCH_SUCCESS', payload: data });
       } catch (err) {
         dispatch({
           type: 'FETCH_FAIL',
-          payload: getError(err), // Dispatch fail action with error message
+          payload: getError(err),
         });
       }
     };
-
-    // Reset delete state when product deletion is successful
     if (successDelete) {
       dispatch({ type: 'DELETE_RESET' });
     } else {
-      fetchData(); // Fetch data when component mounts or page changes
+      fetchData();
     }
-  }, [page, userInfo, successDelete]); // Dependencies for useEffect
+  }, [page, userInfo, successDelete]);
 
-  // Handler for creating new product
   const createHandler = async () => {
     if (window.confirm('Are you sure to create?')) {
       try {
-        dispatch({ type: 'CREATE_REQUEST' }); // Dispatch create request action
+        dispatch({ type: 'CREATE_REQUEST' });
         const { data } = await axios.post(
           '/api/products',
-          {}, // Empty body for POST request
+          {},
           {
-            headers: { Authorization: `Bearer ${userInfo.token}` }, // Add authorization token to request headers
+            headers: { Authorization: `Bearer ${userInfo.token}` },
           }
         );
         toast.success('Product created successfully', {
           autoClose: 1000, // Display success message for 1 second
         });
-        dispatch({ type: 'CREATE_SUCCESS' }); // Dispatch create success action
-        navigate(`/admin/product/${data.product._id}`); // Redirect to newly created product
+        dispatch({ type: 'CREATE_SUCCESS' });
+        navigate(`/admin/product/${data.product._id}`);
       } catch (err) {
-        toast.error(getError(err)); // Display error message
+        toast.error(getError(err));
         dispatch({
-          type: 'CREATE_FAIL', // Dispatch create fail action
+          type: 'CREATE_FAIL',
         });
       }
     }
   };
 
-  // Handler for deleting a product
   const deleteHandler = async (product) => {
     if (window.confirm('Are you sure to delete?')) {
       try {
         await axios.delete(`/api/products/${product._id}`, {
-          headers: { Authorization: `Bearer ${userInfo.token}` }, // Add authorization token to request headers
+          headers: { Authorization: `Bearer ${userInfo.token}` },
         });
-        toast.success('Product deleted successfully'); // Display success message
-        dispatch({ type: 'DELETE_SUCCESS' }); // Dispatch delete success action
+        toast.success('Product deleted successfully', {
+          autoClose: 1000, // Display success message for 1 second
+        });
+        dispatch({ type: 'DELETE_SUCCESS' });
       } catch (err) {
-        toast.error(getError(err)); // Display error message
+        toast.error(getError(err));
         dispatch({
-          type: 'DELETE_FAIL', // Dispatch delete fail action
+          type: 'DELETE_FAIL',
         });
       }
     }
@@ -153,7 +150,11 @@ export default function ProductList() {
       <br />
       <Row className='box'>
         <Col md={6}>
-          <h2>Product List</h2>
+          <h4>
+            Product List Page (
+            {totalProducts !== undefined ? totalProducts : 'Loading...'}{' '}
+            Products Database)
+          </h4>
         </Col>
         <Col md={6} className='col text-end'>
           <Button type='button' onClick={createHandler}>
@@ -166,10 +167,9 @@ export default function ProductList() {
       {loading ? (
         <LoadingBox delay={1000} />
       ) : error ? (
-        <MessageBox variant='danger'>{error}</MessageBox> // Show error message if fetch fails
+        <MessageBox variant='danger'>{error}</MessageBox>
       ) : (
         <>
-          {/* Render product list if data is loaded successfully */}
           <div className='box'>
             <Table responsive striped bordered className='noWrap'>
               <thead className='thead'>
