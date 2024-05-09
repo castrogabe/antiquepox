@@ -482,3 +482,17 @@ UserList.js > updated with Skeleton
 App.js > removed comments, no pages added
 
 Git 12th commit
+
+# Thirteenth Commit-Deployment, Render ** Final **
+
+FRONTEND
+cd root > npm init (this creates a {}package.json in the root)
+. add your projects name "antiquepox"
+. enter through the questions
+. make sure it says deployment
+. edit "scripts"
+. PayPal - switch to live
+. Stripe - switch from test to live
+. push code to github before next step
+. https://render.com - create account / Connect to GitHub for repository
+. https://www.gabewd.com - Deployment dropdown > MernRender
