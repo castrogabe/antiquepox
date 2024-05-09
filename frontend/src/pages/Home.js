@@ -1,13 +1,16 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import Jumbotron from '../components/Jumbotron';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
 import { getError } from '../utils';
 import { Helmet } from 'react-helmet-async';
 import { Row, Col } from 'react-bootstrap';
-import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import ProductCard from '../components/ProductCard';
+import Sidebar from '../components/Sidebar'; // lesson 12
+import { useMediaQuery } from 'react-responsive'; // lesson 12
+import SkeletonHome from '../components/skeletons/SkeletonHome'; // lesson 12
 import Pagination from '../components/Pagination';
 
 const reducer = (state, action) => {
@@ -32,8 +35,22 @@ const reducer = (state, action) => {
 };
 
 export default function Home() {
+  const isMobile = useMediaQuery({ maxWidth: 767 }); // lesson 12
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const handleSidebarOpen = () => {
+    setIsSidebarOpen(true);
+    setTimeout(() => {
+      setIsSidebarOpen(false);
+    }, 2000); // Close sidebar 2000 milliseconds (2 second)
+  };
+  // By adding the setTimeout callback inside the handleSidebarOpen function,
+  // it will open the sidebar by setting isSidebarOpen to true and then close it by
+  // setting isSidebarOpen back to false after the specified duration.
+
+  const navigate = useNavigate();
   const { search } = useLocation();
-  const sp = new URLSearchParams(search);
+  const sp = new URLSearchParams(search); // /search?category = products
   const page = sp.get('page') || 1;
 
   const [{ loading, error, products, pages }, dispatch] = useReducer(reducer, {
@@ -43,19 +60,34 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
-      dispatch({ type: 'FETCH_REQUEST' });
+      // Simulate delay for 1.5 seconds
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       try {
-        const result = await axios.get(`/api/products/search?page=${page}`); // lesson 8
-        dispatch({ type: 'FETCH_SUCCESS', payload: result.data });
+        const { data } = await axios.get(`/api/products/search?page=${page}`);
+        dispatch({ type: 'FETCH_SUCCESS', payload: data });
       } catch (err) {
         dispatch({
           type: 'FETCH_FAIL',
-          payload: getError(err),
+          payload: getError(error),
         });
       }
     };
     fetchData();
-  }, [page]);
+  }, [page, error]);
+
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data } = await axios.get(`/api/products/categories`);
+        setCategories(data);
+      } catch (err) {
+        toast.error(getError(err));
+      }
+    };
+    fetchCategories();
+  }, [dispatch]);
 
   // Pagination
   const getFilterUrl = (filter) => {
@@ -79,10 +111,10 @@ export default function Home() {
       </div>
 
       <div className='content'>
+        <br />
         <Helmet>
           <title>Antiquepox</title>
         </Helmet>
-        <br />
         <div className='box'>
           <p>
             ~ Explore our virtual antique haven! We take joy in curating an
@@ -96,8 +128,24 @@ export default function Home() {
         <br />
         <Row>
           <Col>
+            {/* react skeleton for product card 1 row of 6 product cards lesson 12 */}
             {loading ? (
-              <LoadingBox />
+              <>
+                <Row>
+                  {[...Array(6).keys()].map((i) => (
+                    <Col key={i} sm={6} md={4} lg={2} xl={2} className='mb-3'>
+                      <SkeletonHome />
+                    </Col>
+                  ))}
+                </Row>
+                <Row>
+                  {[...Array(6).keys()].map((i) => (
+                    <Col key={i} sm={6} md={4} lg={2} xl={2} className='mb-3'>
+                      <SkeletonHome />
+                    </Col>
+                  ))}
+                </Row>
+              </>
             ) : error ? (
               <MessageBox variant='danger'>{error}</MessageBox>
             ) : (
@@ -107,6 +155,7 @@ export default function Home() {
                 )}
                 <Row>
                   {products.map((product) => (
+                    // 6 columns
                     <Col
                       key={product.slug}
                       sm={6}
@@ -115,10 +164,26 @@ export default function Home() {
                       xl={2}
                       className='mb-3'
                     >
-                      <ProductCard product={product} />
+                      {/* ProductCard comes from components > ProductCard.js */}
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        handleSidebarOpen={handleSidebarOpen}
+                      />
                     </Col>
                   ))}
                 </Row>
+
+                {/* Desktop renders sidebar, if mobile do not show sidebar and get toast notifications lesson 12*/}
+                {!isMobile ? (
+                  isSidebarOpen && (
+                    <div className='sidebar'>
+                      <Sidebar handleSidebarOpen={handleSidebarOpen} />
+                    </div>
+                  )
+                ) : (
+                  <ToastContainer position='bottom-center' />
+                )}
 
                 {/* Pagination Component */}
                 <Pagination

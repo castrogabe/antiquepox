@@ -1,33 +1,27 @@
-import React, { useState } from 'react'; // Importing React and useState hook
+import React, { useState } from 'react';
 import {
   useStripe,
   useElements,
   CardElement,
   Elements,
-} from '@stripe/react-stripe-js'; // Importing Stripe elements and hooks
-import { Button } from 'react-bootstrap'; // Importing Button component from React Bootstrap
-import { Link } from 'react-router-dom'; // Importing Link component from React Router
-import Axios from 'axios'; // Importing Axios for making HTTP requests
+} from '@stripe/react-stripe-js';
+import { Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import Axios from 'axios';
 
-// Functional component for the checkout form using Stripe
 const CheckoutForm = (props) => {
-  const [processing, setProcessing] = useState(false); // State variable for processing state
-  const stripe = useStripe(); // Stripe hook for accessing the Stripe object
-  const elements = useElements(); // Stripe hook for accessing Stripe Elements
-  const [succeeded, setSucceeded] = useState(false); // State variable for payment success state
-  const [displaySuccessMessage, setDisplaySuccessMessage] = useState(false); // State variable for displaying success message
+  const [processing, setProcessing] = useState(false);
+  const stripe = useStripe();
+  const elements = useElements();
+  const [succeeded, setSucceeded] = useState(false);
+  const [displaySuccessMessage, setDisplaySuccessMessage] = useState(false);
 
-  // Function to handle Stripe success
   const handleStripeSuccess = async (paymentResult) => {
     try {
-      // Perform the action when payment is successful
       props.handleStripeSuccess(paymentResult);
-    } catch (err) {
-      // Handle errors
-    }
+    } catch (err) {}
   };
 
-  // Function to handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -36,7 +30,6 @@ const CheckoutForm = (props) => {
     }
 
     setProcessing(true);
-    // Call stripe.confirmCardPayment() with the client secret.
     const { data } = await Axios(`/api/stripe/secret/${props.orderId}`, {
       headers: {
         Authorization: `Bearer YOUR_STRIPE_SECRET_KEY`, // Replace YOUR_STRIPE_SECRET_KEY with your actual secret key
@@ -61,7 +54,7 @@ const CheckoutForm = (props) => {
       if (result.paymentIntent.status === 'succeeded') {
         setSucceeded(true);
         handleStripeSuccess(result.paymentIntent);
-        setDisplaySuccessMessage(true); // Show success message after successful payment
+        setDisplaySuccessMessage(true);
       }
     }
 
@@ -74,12 +67,11 @@ const CheckoutForm = (props) => {
       <Button
         type='submit'
         className='btn-block'
-        disabled={!stripe || processing || succeeded} // Disable button during processing or after successful payment
+        disabled={!stripe || processing || succeeded}
       >
         Pay With Credit Card
       </Button>
       <br />
-      {/* Display success message if payment is successful */}
       {displaySuccessMessage && (
         <p className='result-message'>
           Payment Successful.{' '}
@@ -100,4 +92,4 @@ const StripeCheckout = (props) => (
   </Elements>
 );
 
-export default StripeCheckout; // Exporting the StripeCheckout component as default
+export default StripeCheckout;

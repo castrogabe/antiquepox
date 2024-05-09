@@ -2,22 +2,28 @@ import axios from 'axios';
 import { useContext, useEffect, useReducer, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  Row,
-  Col,
   Card,
+  Col,
+  Row,
   ListGroup,
+  Form,
   Badge,
   Button,
-  Form,
   FloatingLabel,
 } from 'react-bootstrap';
+import ReactImageMagnify from 'react-image-magnify';
 import Rating from '../components/Rating';
 import { Helmet } from 'react-helmet-async';
-import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import { getError } from '../utils';
 import { Store } from '../Store';
 import { toast } from 'react-toastify';
+import Lightbox from 'react-image-lightbox';
+import 'react-image-lightbox/style.css';
+import { Carousel } from 'react-responsive-carousel';
+import 'react-responsive-carousel/lib/styles/carousel.min.css';
+import { useMediaQuery } from 'react-responsive';
+import SkeletonProductMag from '../components/skeletons/SkeletonProductMag';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -32,11 +38,7 @@ const reducer = (state, action) => {
     case 'FETCH_REQUEST':
       return { ...state, loading: true };
     case 'FETCH_SUCCESS':
-      return {
-        ...state,
-        product: { ...action.payload, reviews: [] },
-        loading: false,
-      };
+      return { ...state, product: action.payload, loading: false };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
     default:
@@ -44,11 +46,13 @@ const reducer = (state, action) => {
   }
 };
 
-export default function ProductMag() {
+function ProductMag() {
   let reviewsRef = useRef();
+
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
-  const [selectedImage, setSelectedImage] = useState('');
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const navigate = useNavigate();
   const params = useParams();
@@ -60,11 +64,13 @@ export default function ProductMag() {
       loading: true,
       error: '',
     });
-
   useEffect(() => {
     const fetchData = async () => {
       dispatch({ type: 'FETCH_REQUEST' });
       try {
+        // Simulate delay for 1.5 seconds
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
         const result = await axios.get(`/api/products/slug/${slug}`);
         dispatch({ type: 'FETCH_SUCCESS', payload: result.data });
       } catch (err) {
@@ -76,7 +82,6 @@ export default function ProductMag() {
 
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { cart, userInfo } = state;
-
   const addToCartHandler = async () => {
     const existItem = cart.cartItems.find((x) => x._id === product._id);
     const quantity = existItem ? existItem.quantity + 1 : 1;
@@ -87,9 +92,17 @@ export default function ProductMag() {
     }
     ctxDispatch({
       type: 'CART_ADD_ITEM',
-      payload: { ...product, quantity },
+      payload: {
+        ...product,
+        quantity,
+      },
     });
     navigate('/cart');
+  };
+
+  const openLightbox = (index) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
   };
 
   const submitHandler = async (e) => {
@@ -106,6 +119,7 @@ export default function ProductMag() {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         }
       );
+
       dispatch({
         type: 'CREATE_SUCCESS',
       });
@@ -124,128 +138,199 @@ export default function ProductMag() {
     }
   };
 
+  // zoom magnifier
+  const images = [product.image];
+  const [selectedImage, setSelectedImage] = useState(images[0]);
+  const hoverHandler = (image, i) => {
+    setSelectedImage(image);
+    refs.current[i].classList.add('active1');
+    for (var j = 0; j < images.length; j++) {
+      if (i !== j) {
+        refs.current[j].classList.remove('active1');
+      }
+    }
+    const textElement = document.querySelector('.text');
+    if (textElement) {
+      textElement.textContent = 'Click to Enlarge or Hover to Zoom';
+    }
+  };
+  const hoverOffHandler = (i) => {
+    refs.current[i].classList.remove('active1');
+  };
+
+  const refs = useRef([]);
+  refs.current = [];
+  const addRefs = (el) => {
+    if (el && !refs.current.includes(el)) {
+      refs.current.push(el);
+    }
+  };
+  // end zoom magnifier
+
+  const mobileView = useMediaQuery({ maxWidth: 992 });
+
   return loading ? (
-    <LoadingBox />
+    <SkeletonProductMag />
   ) : error ? (
     <MessageBox variant='danger'>{error}</MessageBox>
   ) : (
     <div className='content'>
       <br />
-      <div className='box'>
-        <Row>
-          <p className='mt-3'>
-            ~ Explore a meticulously curated collection where each item has been
-            thoughtfully chosen over the years. Our exclusive range features
-            unique and timeless pieces that beautifully capture the essence of
-            history. Driven by our unwavering passion for antiques, we embark on
-            a continuous quest for treasures, each with its own captivating
-            story. Every item is lovingly handpicked, ensuring not only
-            exceptional quality but also enduring value. Immerse yourself in a
-            world of carefully selected artifacts that stand as a testament to
-            our commitment to bringing you the very best in every piece. ~
-          </p>
-        </Row>
-      </div>
+      <Row className='box'>
+        <p className='mt-3'>
+          ~ Explore a meticulously curated collection where each item has been
+          thoughtfully chosen over the years. Our exclusive range features
+          unique and timeless pieces that beautifully capture the essence of
+          history. Driven by our unwavering passion for antiques, we embark on a
+          continuous quest for treasures, each with its own captivating story.
+          Every item is lovingly handpicked, ensuring not only exceptional
+          quality but also enduring value. Immerse yourself in a world of
+          carefully selected artifacts that stand as a testament to our
+          commitment to bringing you the very best in every piece. ~
+        </p>
+      </Row>
       <br />
       <Row>
-        <Col md={6}>
-          <Row>
-            {/* Thumbnail images */}
-            <Col md={3}>
-              <ListGroup.Item>
-                <Row xs={1} md={2} className='g-2'>
-                  {[product.image, ...product.images].map((x) => (
-                    <Col key={x}>
-                      <Button
-                        className='thumbnail'
-                        type='button'
-                        variant='light'
-                        onClick={() => setSelectedImage(x)}
-                      >
-                        <Card.Img variant='top' src={x} alt='product' />
-                      </Button>
-                    </Col>
-                  ))}
-                </Row>
-              </ListGroup.Item>
-            </Col>
-
-            {/* Main image */}
-            <Col md={9}>
+        <Col md={6} className='container'>
+          {mobileView ? (
+            <Carousel>
+              {product.images.map((image, index) => (
+                <div key={index}>
+                  <img
+                    src={image}
+                    alt={product.name}
+                    className='img-large'
+                    loading='lazy'
+                  />
+                </div>
+              ))}
+            </Carousel>
+          ) : (
+            <div className='left'>
+              {/* thumbnail images */}
               <div className='left_1'>
-                <img
-                  className='img-large'
-                  src={product.image}
-                  alt={product.name}
-                ></img>
+                {[product.image, ...product.images].map((image, i) => (
+                  <div
+                    className={i === 0 ? 'img_wrap active' : 'img_wrap'}
+                    key={i}
+                    onMouseOver={() => hoverHandler(image, i)}
+                    onMouseLeave={() => hoverOffHandler(i)}
+                    ref={addRefs}
+                    onClick={() => openLightbox(i + 1)}
+                  >
+                    <Card.Img src={image} alt='' loading='lazy' />
+                  </div>
+                ))}
               </div>
-            </Col>
-          </Row>
+
+              {/* main image */}
+              <div className='img-large' onClick={() => openLightbox(0)}>
+                <ReactImageMagnify
+                  {...{
+                    smallImage: {
+                      src: selectedImage || product.image,
+                      alt: '',
+                      isFluidWidth: true,
+                    },
+                    largeImage: {
+                      src: selectedImage || product.image,
+                      width: 1200,
+                      height: 1800,
+                    },
+                    enlargedImageContainerDimensions: {
+                      width: '160%',
+                      height: '125%',
+                    },
+                  }}
+                />
+                <p className='text'>
+                  Roll over image to zoom in or Click to enlarge
+                </p>
+              </div>
+            </div>
+          )}
         </Col>
 
         <Col md={6}>
-          <ListGroup variant='flush'>
-            <ListGroup.Item>
-              <Helmet>
-                <title>{product.name}</title>
-              </Helmet>
-              <h1>{product.name}</h1>
-            </ListGroup.Item>
-            <ListGroup.Item>
-              <Rating
-                rating={product.rating}
-                numReviews={product.numReviews}
-              ></Rating>
-            </ListGroup.Item>
-            <ListGroup.Item>Price : ${product.price}</ListGroup.Item>
-            <ListGroup.Item>From : {product.from}</ListGroup.Item>
-            <ListGroup.Item>Finish : {product.finish}</ListGroup.Item>
-            <ListGroup.Item>
-              Description:
-              <p>{product.description}</p>
-            </ListGroup.Item>
-          </ListGroup>
+          <div className='box'>
+            <ListGroup variant='flush'>
+              <ListGroup.Item>
+                <Helmet>
+                  <title>{product.name}</title>
+                </Helmet>
+                <h4>{product.name}</h4>
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <Rating
+                  rating={product.rating}
+                  numReviews={product.numReviews}
+                ></Rating>
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <Link to='/contact' className='productEmail'>
+                  Product Question?
+                </Link>
+              </ListGroup.Item>
+              <ListGroup.Item>Price : ${product.price}</ListGroup.Item>
+              <ListGroup.Item>From : {product.from}</ListGroup.Item>
+              <ListGroup.Item>Finish : {product.finish}</ListGroup.Item>
+              <ListGroup.Item>
+                Description:
+                <p>{product.description}</p>
+              </ListGroup.Item>
+            </ListGroup>
+          </div>
+
           <br />
-          <Card>
-            <Card.Body>
-              <ListGroup variant='flush'>
+
+          <div className='box'>
+            <ListGroup variant='flush'>
+              <ListGroup.Item>
+                <Row>
+                  <Col>Price:</Col>
+                  <Col>
+                    <strong>${product.price}</strong>
+                  </Col>
+                </Row>
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <Row>
+                  <Col>Status:</Col>
+                  <Col>
+                    {product.countInStock > 0 ? (
+                      <Badge bg='success'>In Stock</Badge>
+                    ) : (
+                      <Badge bg='danger'>Unavailable</Badge>
+                    )}
+                  </Col>
+                </Row>
+              </ListGroup.Item>
+
+              {product.countInStock > 0 && (
                 <ListGroup.Item>
-                  <Row>
-                    <Col>Price:</Col>
-                    <Col>${product.price}</Col>
-                  </Row>
+                  <div className='d-grid'>
+                    {/* low quantity alert 5 or less */}
+                    {product.countInStock <= 5 && (
+                      <p style={{ color: 'red' }}>
+                        Only {product.countInStock} Left, buy Now!
+                      </p>
+                    )}
+                    {/* end low quantity alert */}
+                    <Button onClick={addToCartHandler} variant='primary'>
+                      Add to Cart
+                    </Button>
+                  </div>
                 </ListGroup.Item>
-                <ListGroup.Item>
-                  <Row>
-                    <Col>Status:</Col>
-                    <Col>
-                      {product.countInStock > 0 ? (
-                        <Badge bg='success'>In Stock</Badge>
-                      ) : (
-                        <Badge bg='danger'>Unavailable</Badge>
-                      )}
-                    </Col>
-                  </Row>
-                </ListGroup.Item>
-                {product.countInStock > 0 && (
-                  <ListGroup.Item>
-                    <div className='d-grid'>
-                      <Button onClick={addToCartHandler} variant='primary'>
-                        Add to Cart
-                      </Button>
-                    </div>
-                  </ListGroup.Item>
-                )}
-              </ListGroup>
-            </Card.Body>
-          </Card>
+              )}
+            </ListGroup>
+          </div>
         </Col>
       </Row>
 
       <br />
 
       <div className='box'>
-        <h2 ref={reviewsRef}>Reviews</h2>
+        <h4 ref={reviewsRef}>Reviews</h4>
         <div className='mb-3'>
           {product.reviews.length === 0 && (
             <MessageBox>There is no review</MessageBox>
@@ -261,10 +346,9 @@ export default function ProductMag() {
             </ListGroup.Item>
           ))}
         </ListGroup>
-        <br />
-        <div className='mb-3'>
+        <div className='my-3'>
           {userInfo ? (
-            <form onSubmit={submitHandler}>
+            <Form onSubmit={submitHandler}>
               <h2>Write a customer review</h2>
               <Form.Group className='mb-3' controlId='rating'>
                 <Form.Label>Rating</Form.Label>
@@ -283,23 +367,25 @@ export default function ProductMag() {
               </Form.Group>
               <FloatingLabel
                 controlId='floatingTextarea'
-                label='Comments'
+                label='Write your comment'
                 className='mb-3'
               >
                 <Form.Control
                   as='textarea'
                   placeholder='Leave a comment here'
+                  style={{ height: '100px' }}
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                 />
               </FloatingLabel>
+
               <div className='mb-3'>
                 <Button disabled={loadingCreateReview} type='submit'>
                   Submit
                 </Button>
-                {loadingCreateReview && <LoadingBox />}
+                {loadingCreateReview && <SkeletonProductMag />}
               </div>
-            </form>
+            </Form>
           ) : (
             <MessageBox>
               Please{' '}
@@ -311,7 +397,33 @@ export default function ProductMag() {
           )}
         </div>
       </div>
+
+      {/* Lightbox */}
+      <div className='lightbox'>
+        {lightboxOpen && (
+          <Lightbox
+            mainSrc={
+              lightboxIndex === 0
+                ? product.image
+                : product.images[lightboxIndex - 1]
+            }
+            nextSrc={
+              lightboxIndex === product.images.length
+                ? null
+                : product.images[lightboxIndex]
+            }
+            prevSrc={
+              lightboxIndex === 0 ? null : product.images[lightboxIndex - 2]
+            }
+            onCloseRequest={() => setLightboxOpen(false)}
+            onMovePrevRequest={() => setLightboxIndex(lightboxIndex - 1)}
+            onMoveNextRequest={() => setLightboxIndex(lightboxIndex + 1)}
+          />
+        )}
+      </div>
       <br />
     </div>
   );
 }
+
+export default ProductMag;

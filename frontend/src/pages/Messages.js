@@ -1,14 +1,14 @@
 import axios from 'axios';
 import React, { useEffect, useContext, useState, useReducer } from 'react';
-import { Table, Button, Form } from 'react-bootstrap';
+import { Table, Button, Row, Col, Form } from 'react-bootstrap'; // lesson 12
 import { useLocation } from 'react-router-dom';
 import { Store } from '../Store';
 import { Helmet } from 'react-helmet-async';
 import { toast } from 'react-toastify';
-import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import { getError } from '../utils';
 import AdminPagination from '../components/AdminPagination';
+import SkeletonMessage from '../components/skeletons/SkeletonMessage'; // lesson 12
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -167,9 +167,16 @@ export default function Messages() {
           )
         </h4>
         <div className='box'>
-          {loadingDelete && <LoadingBox />}
+          {/* lesson 12 */}
+          {loadingDelete && <SkeletonMessage />}
           {loading ? (
-            <LoadingBox />
+            <Row>
+              {[...Array(8).keys()].map((i) => (
+                <Col key={i} md={12} className='mb-3'>
+                  <SkeletonMessage />
+                </Col>
+              ))}
+            </Row>
           ) : error ? (
             <MessageBox variant='danger'>{error}</MessageBox>
           ) : (

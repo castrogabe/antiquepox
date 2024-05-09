@@ -5,13 +5,13 @@ import { Helmet } from 'react-helmet-async';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Col, Row, ListGroup, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import { Store } from '../Store';
 import { getError } from '../utils';
 import { toast } from 'react-toastify';
 import { loadStripe } from '@stripe/stripe-js/pure';
 import StripeCheckout from '../components/StripeCheckout';
+import SkeletonOrderDetails from '../components/skeletons/SkeletonOrderDetails'; //lesson 12
 
 function reducer(state, action) {
   switch (action.type) {
@@ -55,8 +55,6 @@ export default function OrderDetails() {
   const params = useParams();
   const { id: orderId } = params;
   const navigate = useNavigate();
-
-  // shipping email confirmation lesson 10
   const [deliveryDays, setDeliveryDays] = useState('');
   const [carrierName, setCarrierName] = useState('');
   const [trackingNumber, setTrackingNumber] = useState('');
@@ -240,7 +238,13 @@ export default function OrderDetails() {
   };
 
   return loading ? (
-    <LoadingBox />
+    <Row>
+      {[...Array(8).keys()].map((i) => (
+        <Col key={i} md={12} className='mb-3'>
+          <SkeletonOrderDetails />
+        </Col>
+      ))}
+    </Row>
   ) : error ? (
     <MessageBox variant='danger'>{error}</MessageBox>
   ) : (
@@ -392,7 +396,7 @@ export default function OrderDetails() {
                   <ListGroup.Item>
                     {paymentMethod === 'PayPal' ? (
                       isPending ? (
-                        <LoadingBox />
+                        <SkeletonOrderDetails />
                       ) : (
                         <div>
                           <PayPalButtons
@@ -401,13 +405,13 @@ export default function OrderDetails() {
                             onError={onError}
                           />
                           {/* Send payment receipt when item is paid */}
-                          {loadingPay && <LoadingBox />}
+                          {loadingPay && <SkeletonOrderDetails />}
                         </div>
                       )
                     ) : (
                       <div>
                         {/* Send payment receipt when item is paid */}
-                        {!order.isPaid && !stripe && <LoadingBox />}
+                        {!order.isPaid && !stripe && <SkeletonOrderDetails />}
                         {!order.isPaid && stripe && (
                           <StripeCheckout
                             stripe={stripe}
@@ -423,7 +427,7 @@ export default function OrderDetails() {
 
                 {userInfo.isAdmin && order.isPaid && !order.isShipped && (
                   <ListGroup.Item>
-                    {loadingShipped && <LoadingBox />}
+                    {loadingShipped && <SkeletonOrderDetails />}
                     <div className='d-grid'>
                       {/* send shipping confirmation email when order ships */}
                       <h6>

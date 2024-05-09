@@ -86,7 +86,7 @@ export default function Signin() {
         </Col>
 
         <Col md={6}>
-          <img src='/images/signin.png' alt='signin' />
+          <img src='/images/signin.png' alt='signin' className='img-fluid' />
         </Col>
       </Row>
     </div>

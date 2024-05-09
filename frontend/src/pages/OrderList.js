@@ -1,14 +1,14 @@
 import axios from 'axios';
 import React, { useContext, useEffect, useReducer } from 'react';
 import { toast } from 'react-toastify';
-import { Button, Table } from 'react-bootstrap';
+import { Button, Table, Row, Col } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import { Store } from '../Store';
 import { getError } from '../utils';
 import AdminPagination from '../components/AdminPagination';
+import SkeletonOrderList from '../components/skeletons/SkeletonOrderList'; // lesson 12
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -120,8 +120,15 @@ export default function OrderList() {
         {totalOrders !== undefined ? totalOrders : 'Loading...'} )
       </h4>
       <div className='box'>
+        {/* lesson 12 */}
         {loading ? (
-          <LoadingBox />
+          <Row>
+            {[...Array(8).keys()].map((i) => (
+              <Col key={i} md={12} className='mb-3'>
+                <SkeletonOrderList />
+              </Col>
+            ))}
+          </Row>
         ) : error ? (
           <MessageBox variant='danger'>{error}</MessageBox>
         ) : (

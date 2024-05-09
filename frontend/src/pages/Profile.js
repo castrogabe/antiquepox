@@ -1,10 +1,11 @@
-import React, { useContext, useReducer, useState } from 'react';
+import React, { useContext, useReducer, useState, useEffect } from 'react'; // lesson 12
 import { Helmet } from 'react-helmet-async';
 import { Button, Form } from 'react-bootstrap';
 import { Store } from '../Store';
 import { toast } from 'react-toastify';
 import { getError } from '../utils';
 import axios from 'axios';
+import SkeletonProfile from '../components/skeletons/SkeletonProfile'; // lesson 12
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -72,81 +73,101 @@ export default function Profile() {
     setShowConfirmPassword(!showConfirmPassword); // Toggle showConfirmPassword state
   };
 
+  // lesson 12
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className='container small-container'>
-      <Helmet>
-        <title>User Profile</title>
-      </Helmet>
-      <br />
-      <h4 className='box'>User Profile</h4>
-      <form onSubmit={submitHandler}>
-        <Form.Group className='mb-3' controlId='name'>
-          <Form.Label>Name</Form.Label>
-          <Form.Control
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </Form.Group>
+      {/* lesson 12 */}
+      {isLoading ? (
+        <SkeletonProfile />
+      ) : (
+        <>
+          <Helmet>
+            <title>User Profile</title>
+          </Helmet>
+          <br />
+          <h4 className='box'>User Profile</h4>
+          <form onSubmit={submitHandler}>
+            <Form.Group className='mb-3' controlId='name'>
+              <Form.Label>Name</Form.Label>
+              <Form.Control
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </Form.Group>
 
-        <Form.Group className='mb-3' controlId='email'>
-          <Form.Label>Email</Form.Label>
-          <Form.Control
-            type='email'
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </Form.Group>
+            <Form.Group className='mb-3' controlId='email'>
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type='email'
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </Form.Group>
 
-        <Form.Group className='mb-3' controlId='password'>
-          <Form.Label>New Password</Form.Label>
-          <div className='input-group'>
-            <Form.Control
-              type={showPassword ? 'text' : 'password'}
-              placeholder='Minimum length 8, 1 uppercase, 1 lowercase, 1 digit, and 1 special character'
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <Button
-              variant='outline-secondary'
-              onClick={togglePasswordVisibility}
-            >
-              <i
-                className={`fa ${showPassword ? 'fas fa-eye-slash' : 'fa-eye'}`}
-              ></i>
-            </Button>
-          </div>
-        </Form.Group>
+            <Form.Group className='mb-3' controlId='password'>
+              <Form.Label>New Password</Form.Label>
+              <div className='input-group'>
+                <Form.Control
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder='Minimum length 8, 1 uppercase, 1 lowercase, 1 digit, and 1 special character'
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <Button
+                  variant='outline-secondary'
+                  onClick={togglePasswordVisibility}
+                >
+                  <i
+                    className={`fa ${
+                      showPassword ? 'fas fa-eye-slash' : 'fa-eye'
+                    }`}
+                  ></i>
+                </Button>
+              </div>
+            </Form.Group>
 
-        <Form.Group className='mb-3' controlId='confirmPassword'>
-          <Form.Label>Confirm New Password</Form.Label>
-          <div className='input-group'>
-            <Form.Control
-              type={showConfirmPassword ? 'text' : 'password'}
-              placeholder='Minimum length 8, 1 uppercase, 1 lowercase, 1 digit, and 1 special character'
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-            <Button
-              variant='outline-secondary'
-              onClick={toggleConfirmPasswordVisibility}
-            >
-              <i
-                className={`fa ${
-                  showConfirmPassword ? 'fas fa-eye-slash' : 'fa-eye'
-                }`}
-              ></i>
-            </Button>
-          </div>
-        </Form.Group>
+            <Form.Group className='mb-3' controlId='confirmPassword'>
+              <Form.Label>Confirm New Password</Form.Label>
+              <div className='input-group'>
+                <Form.Control
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder='Minimum length 8, 1 uppercase, 1 lowercase, 1 digit, and 1 special character'
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                <Button
+                  variant='outline-secondary'
+                  onClick={toggleConfirmPasswordVisibility}
+                >
+                  <i
+                    className={`fa ${
+                      showConfirmPassword ? 'fas fa-eye-slash' : 'fa-eye'
+                    }`}
+                  ></i>
+                </Button>
+              </div>
+            </Form.Group>
 
-        <div className='mb-3'>
-          <Button type='submit'>Update</Button>
-        </div>
-      </form>
+            <div className='mb-3'>
+              <Button type='submit'>Update</Button>
+            </div>
+          </form>
+        </>
+      )}
     </div>
   );
 }

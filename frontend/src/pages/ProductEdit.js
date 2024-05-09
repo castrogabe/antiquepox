@@ -6,8 +6,8 @@ import { Store } from '../Store';
 import { getError } from '../utils';
 import { Container, Form, Button, ListGroup } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
-import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
+import SkeletonProductEdit from '../components/skeletons/SkeletonProductEdit'; // lesson 12
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -167,7 +167,7 @@ export default function ProductEdit() {
       <h4 className='box'>Edit Product {productId}</h4>
 
       {loading ? (
-        <LoadingBox />
+        <SkeletonProductEdit delay={1000} />
       ) : error ? (
         <MessageBox variant='danger'>{error}</MessageBox>
       ) : (
@@ -211,7 +211,7 @@ export default function ProductEdit() {
           <Form.Group className='mb-3' controlId='imageFile'>
             <Form.Label>Upload Image</Form.Label>
             <Form.Control type='file' onChange={uploadFileHandler} />
-            {loadingUpload && <LoadingBox delay={1000} />}
+            {loadingUpload && <SkeletonProductEdit delay={1000} />}
           </Form.Group>
 
           <Form.Group className='mb-3' controlId='additionalImage'>
@@ -235,7 +235,7 @@ export default function ProductEdit() {
               type='file'
               onChange={(e) => uploadFileHandler(e, true)}
             />
-            {loadingUpload && <LoadingBox delay={1000} />}
+            {loadingUpload && <SkeletonProductEdit delay={1000} />}
           </Form.Group>
 
           <Form.Group className='mb-3' controlId='category'>
@@ -289,7 +289,7 @@ export default function ProductEdit() {
             <Button disabled={loadingUpdate} type='submit'>
               Update
             </Button>
-            {loadingUpdate && <LoadingBox />}
+            {loadingUpdate && <SkeletonProductEdit delay={1000} />}
           </div>
         </Form>
       )}

@@ -2,11 +2,11 @@ import React, { useContext, useEffect, useReducer } from 'react';
 import { Helmet } from 'react-helmet-async';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import { Store } from '../Store';
 import { getError } from '../utils';
-import { Button, Table } from 'react-bootstrap/esm';
+import { Button, Table, Row, Col } from 'react-bootstrap/esm'; // lesson 12
+import SkeletonOrderHistory from '../components/skeletons/SkeletonOrderHistory'; // lesson 12
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -65,8 +65,22 @@ export default function OrderHistory() {
       <br />
       <h4 className='box'>{userInfo.name}'s Order History</h4>
       <div className='box'>
+        <p className='text-muted'>
+          {/* lesson 12 */}
+          Click <strong>Details</strong> below for more information, if you have
+          any questions, please feel free to{' '}
+          <Link to='/contact' className='productEmail'>
+            <strong>Contact Us.</strong>
+          </Link>
+        </p>
         {loading ? (
-          <LoadingBox />
+          <Row>
+            {[...Array(8).keys()].map((i) => (
+              <Col key={i} md={12} className='mb-3'>
+                <SkeletonOrderHistory />
+              </Col>
+            ))}
+          </Row>
         ) : error ? (
           <MessageBox variant='danger'>{error}</MessageBox>
         ) : (

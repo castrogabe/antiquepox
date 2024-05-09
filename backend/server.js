@@ -8,7 +8,7 @@ import userRouter from './routes/userRoutes.js';
 import orderRouter from './routes/orderRoutes.js';
 import uploadRouter from './routes/uploadRoutes.js';
 import stripeRouter from './routes/stripeRoutes.js';
-import messageRouter from './routes/messageRoutes.js'; // lesson 11
+import messageRouter from './routes/messageRoutes.js';
 import cors from 'cors';
 
 mongoose
@@ -29,7 +29,6 @@ app.get('/api/keys/paypal', (req, res) => {
   res.send(config.PAYPAL_CLIENT_ID || 'sb');
 });
 
-// CORS middleware configuration
 app.use(
   cors({
     origin: 'http://localhost:3000', // Allow requests from this origin
@@ -44,7 +43,7 @@ app.use('/api/products', productRouter);
 app.use('/api/users', userRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/stripe', stripeRouter);
-app.use('/api/messages', messageRouter); // lesson 11
+app.use('/api/messages', messageRouter);
 
 const __dirname = path.resolve();
 

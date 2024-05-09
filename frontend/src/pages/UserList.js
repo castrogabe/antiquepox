@@ -4,11 +4,11 @@ import { Button, Table } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import { Store } from '../Store';
 import { getError } from '../utils';
 import AdminPagination from '../components/AdminPagination';
+import SkeletonUserList from '../components/skeletons/SkeletonUserList'; // lesson 12
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -118,9 +118,9 @@ export default function UserList() {
         Users ({totalUsers !== undefined ? totalUsers : 'Loading...'})
       </h4>
       <div className='box'>
-        {loadingDelete && <LoadingBox />}
+        {loadingDelete && <SkeletonUserList delay={1000} />}
         {loading ? (
-          <LoadingBox />
+          <SkeletonUserList delay={1000} />
         ) : error ? (
           <MessageBox variant='danger'>{error}</MessageBox>
         ) : (

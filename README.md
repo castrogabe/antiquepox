@@ -2,7 +2,9 @@
 
 . create git repository called antiquepox
 
-# 1st Commit Create React App, Layout (lesson 1)
+# antiquepox
+
+# 1st Commit Create React App, Layout
 
 npx create-react-app frontend
 FRONTEND
@@ -81,7 +83,7 @@ Git: https://git-scm.com/ follow the steps to install on your system
 Accounts needed
 Canva: https://www.canva.com/ we will use this to create our logo and jumbotron
 Express: https://expressjs.com/ we will use to build our backend API application
-Mongodb: https://www.mongodb.com to save and retrieve data from the database
+Mongodb: https://www.mongodb.com/ to save and retrieve data from the database
 Cloudinary: https://cloudinary.com/ to save our images
 JWT: https://jwt.io/ for user auth
 PayPal Developer: https://developer.paypal.com/home to make payments for PayPal orders
@@ -106,7 +108,6 @@ Gallery.js > added
 Product.js > added
 
 Add Bootstrap and all css
-Bootstrap: https://getbootstrap.com/docs/4.3/examples/ example code for Header.js
 
 ####### GIT COMMIT YOUR REPOSITORY ###########
 
@@ -144,31 +145,59 @@ Open new terminal or command prompt in VSCode
 
 Now you can check repository for updated code.
 
-# Third Commit create backend and show list products (Lesson 3)
+# Third Commit create backend and show products (Lesson 3)
 
-npm init (enter thru the prompts) creates {}package.json
-
-List Products in Home.js
-show products array from data.js
-render products
-create routes for products
+Terminal: mkdir backend (Root of antiquepox)
+cd backend > npm init (enter thru the prompts) creates {}package.json
 
 BACKEND
 data.js > added
 .gitiginore > added
 server.js > added
+. create route for api/products
+. update and fetch products from backend using axios
+. get state from useReducer
+. update HomeScreen.js
 
 FRONTEND
 .folder: pages
-Gallery.js > updated with listed products
+Gallery.js > updated
 Home.js > updated
-Product.js > updated with listed products
+Product.js > updated
 
-1. create route for api/products
-2. update and fetch products from backend using axios
-3. get state from useReducer
-4. update HomeScreen.js
-5. git commit
+# Fourth Commit by Reducer Hook, Helmet, Rating (Lesson 4)
+
+BACKEND
+server.js > update to get to products/slug
+
+FRONTEND
+index.js > update with HelmetProvider
+{}package.json > update DevDependencies with: "@babel/plugin-proposal-private-property-in-object": "^1.0.0"
+
+folder: components
+LoadingBox.js (spinner) > added
+MessageBox.js > added
+Product.js > added
+Rating.js > added
+
+folder: pages
+AboutUs.js > updated
+Home.js > updated
+Product.js > updated
+Rating.js > added
+
+. define reducer
+. update fetch data, get state from useReducer in Home
+. create product and rating components
+. Use rating in product component
+. Add Helmet to pages and index.js
+. Jumbotron with typewriter effect in Home and components add Jumbotron.js
+. Create Product details
+. Create loading component
+. Create message component
+. Add React spinner in LoadingBox
+. utils.js to define error function
+. update server.js in backend
 
 # Fifth Commit, Jumbotron, Cart, Signin,.env, JWT, MongoDB (Lesson 5)
 
@@ -258,7 +287,6 @@ BACKEND
 folder: routes
 orderRoutes.js > updated
 productRoutes.js > updated
-userRoutes.js > updated
 
 config.js > added
 server.js > updated with config
@@ -317,6 +345,8 @@ ProductMag.js > updated
 App.js > updated with 4 pages
 signup to Cloudinary
 
+Git 9th commit
+
 # Tenth Commit-Admin, Part 3 of 4 Nodemailer, Stripe, Password (lesson 10)
 
 BACKEND
@@ -353,6 +383,7 @@ OrderList.js > updated with Form for deliveryDays, carrierName, trackingNumber
 
 App.js > updated
 {}package.json > added stripe (npm install --force)
+
 Git 10th commit
 
 # Eleventh Commit-Admin Part 4 of 4 Contact/Messages (lesson 11)
@@ -387,3 +418,67 @@ Store.js > update with Messages
 App.js > updated for Contact and Messages
 
 Git 11th commit
+
+# Twelfth Commit-ProductMag, Sidebar, Skeletons
+
+FRONTEND  
+folders: components
+Sidebar.js > added for Home.js
+ProductCard.js > updated with sidebar turnery operator and low Quantity alert
+Skeleton (folder)
+Skeleton.css > added
+Skeleton.js > Added
+SkeletonAboutUs.js > added
+SkeletonAskedQuestions.js > added
+SkeletonCart.js > added
+SkeltonContact.js > added
+SkeletonDashboard.js > added
+SkeletonDesign.js > added
+SkeletonForgetPassword.js > added
+SkeletonGallery.js > added
+SkeletonHome.js > added
+SkeletonMessage.js > added
+SkeletonOrderDetails.js > added
+SkeletonOrderHistory.js > added
+SkeletonOrderList.js > added
+SkeletonPaymentMethod.js > added
+SkeletonPlaceOrder.js > added
+SkeletonProductEdit.js > added
+SkeletonProductList.js > added
+SkeletonProductMag.js > added
+SkeletonProfile.js > added
+SkeletonResetPassword.js > added
+SkeletonShippingAddress.js > added
+SkeletonUserEdit.js > added
+SkeletonUserList.js > added
+
+folders: pages
+Home.js > updated with Skeleton and SideBar
+ProductMag.js > updated with imageMagnify, lightbox, Skeleton
+Signin.js > updated img with className='image-fluid', no Skelton
+Signup.js > updated img with className='image-fluid', no Skelton
+AboutUs.js > updated with Skeleton
+AskedQuestions.js > updated with Skeleton
+Cart.js > updated with Skeleton
+Contact.js > updated with Skeleton
+Dashboard.js > updated with Skeleton
+Design.js > updated with Skeleton
+ForgetPassword.js > updated with Skelton
+Gallery.js > updated with Skeleton
+Messages.js > updated with Skeleton
+OrderDetails.js > updated with Skeleton
+OrderHistory.js > updated with Skeleton
+OrderList.js > updated with Skeleton
+PaymentMethod.js > updated with Skeleton
+PlaceOrder.js > updated with Skeleton
+ProductEdit.js > updated with Skeleton
+ProductList.js > updated with Skeleton
+Profile.js > updated with Skeleton
+ResetPassword.js > updated with Skeleton
+ShippingAddress.js > updated with Skeleton
+UserEdit.js > updated with Skeleton
+UserList.js > updated with Skeleton
+
+App.js > removed comments, no pages added
+
+Git 12th commit

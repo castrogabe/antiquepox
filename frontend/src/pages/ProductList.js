@@ -5,10 +5,10 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Row, Col, Button, Table } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { Store } from '../Store';
-import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import { getError } from '../utils';
 import AdminPagination from '../components/AdminPagination';
+import SkeletonProductList from '../components/skeletons/SkeletonProductList'; // lesson 12
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -162,10 +162,17 @@ export default function ProductList() {
           </Button>
         </Col>
       </Row>
-      {loadingCreate && <LoadingBox delay={1000} />}
-      {loadingDelete && <LoadingBox delay={1000} />}
+      {/* lesson 12 */}
+      {loadingCreate && <SkeletonProductList delay={1000} />}
+      {loadingDelete && <SkeletonProductList delay={1000} />}
       {loading ? (
-        <LoadingBox delay={1000} />
+        <Row>
+          {[...Array(8).keys()].map((i) => (
+            <Col key={i} md={12} className='mb-3'>
+              <SkeletonProductList delay={1000} />
+            </Col>
+          ))}
+        </Row>
       ) : error ? (
         <MessageBox variant='danger'>{error}</MessageBox>
       ) : (

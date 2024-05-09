@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useReducer } from 'react';
 import Chart from 'react-google-charts';
 import axios from 'axios';
-import { Helmet } from 'react-helmet-async';
 import { Store } from '../Store';
 import { getError } from '../utils';
-import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import { Row, Col, Card } from 'react-bootstrap';
+import SkeletonDashboard from '../components/skeletons/SkeletonDashboard';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -35,6 +34,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
+      // Simulate delay for 1.5 seconds to show Skeleton
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       try {
@@ -44,7 +44,6 @@ export default function Dashboard() {
 
         const { data: messagesData } = await axios.get('/api/messages'); // Fetch messages
 
-        // lesson 11
         dispatch({
           type: 'FETCH_SUCCESS',
           payload: {
@@ -64,13 +63,10 @@ export default function Dashboard() {
 
   return (
     <div className='content'>
-      <Helmet>
-        <title>Admin Dashboard</title>
-      </Helmet>
       <br />
-      <h2 className='box'>Admin Dashboard</h2>
+      <h1 className='box'>Dashboard</h1>
       {loading ? (
-        <LoadingBox />
+        <SkeletonDashboard />
       ) : error ? (
         <MessageBox variant='danger'>{error}</MessageBox>
       ) : (
@@ -84,7 +80,7 @@ export default function Dashboard() {
                       ? summary.users[0].numUsers
                       : 0}
                   </Card.Title>
-                  <Card.Text>Users</Card.Text>
+                  <Card.Text> Users</Card.Text>
                 </Card.Body>
               </Card>
             </Col>
@@ -97,7 +93,7 @@ export default function Dashboard() {
                       ? summary.orders[0].numOrders
                       : 0}
                   </Card.Title>
-                  <Card.Text>New Orders</Card.Text>
+                  <Card.Text> New Orders</Card.Text>
                 </Card.Body>
               </Card>
             </Col>
@@ -106,18 +102,16 @@ export default function Dashboard() {
               <Card>
                 <Card.Body>
                   <Card.Title>
-                    {/* If summary sales exists and show summary sales otherwise show $0, .toFixed(2) adds 2 digits to end of dollar amount $1.00 */}
                     $
                     {summary.orders && summary.users[0]
                       ? summary.orders[0].totalSales.toFixed(2)
                       : 0}
                   </Card.Title>
-                  <Card.Text>Order Value</Card.Text>
+                  <Card.Text> Order Value</Card.Text>
                 </Card.Body>
               </Card>
             </Col>
 
-            {/* lesson 11 */}
             <Col md={3}>
               <Card>
                 <Card.Body>
@@ -130,7 +124,6 @@ export default function Dashboard() {
             </Col>
           </Row>
 
-          {/* Displaying sales chart */}
           <div className='my-3'>
             <h2>Sales</h2>
             {summary.dailyOrders.length === 0 ? (
@@ -148,7 +141,6 @@ export default function Dashboard() {
               ></Chart>
             )}
           </div>
-
           <div className='my-3'>
             <h2>Categories</h2>
             {summary.productCategories.length === 0 ? (
