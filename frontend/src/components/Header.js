@@ -20,8 +20,9 @@ function Header() {
     localStorage.removeItem('paymentMethod');
     window.location.href = '/signin';
   };
-
   const [categories, setCategories] = useState([]);
+  const [messagesCount, setMessagesCount] = useState(0);
+  const [summaryData, setSummaryData] = useState(0);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -34,6 +35,36 @@ function Header() {
     };
     fetchCategories();
   }, []);
+
+  // Fetch messages count and orders summary on userInfo change
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (userInfo && userInfo.token) {
+          const config = {
+            headers: {
+              Authorization: `Bearer ${userInfo.token}`, // Set Authorization header with user token
+            },
+          };
+
+          // Fetch messages count
+          const messagesResponse = await axios.get('/api/messages', config);
+          setMessagesCount(messagesResponse.data.length); // Set messagesCount state with fetched count
+
+          // Fetch orders count
+          const summaryResponse = await axios.get(
+            '/api/orders/summary',
+            config
+          );
+          setSummaryData(summaryResponse.data.orders); // Set summaryData state with fetched orders data
+        }
+      } catch (err) {
+        toast.error(getError(err)); // Display error message using toast if fetch fails
+      }
+    };
+
+    fetchData(); // Call fetchData function
+  }, [userInfo]); // Dependency array ensures this effect runs when userInfo changes
 
   return (
     <>
@@ -106,11 +137,34 @@ function Header() {
                   <LinkContainer to='/admin/products'>
                     <NavDropdown.Item>Products</NavDropdown.Item>
                   </LinkContainer>
-                  <LinkContainer to='/admin/orders'>
-                    <NavDropdown.Item>Orders</NavDropdown.Item>
-                  </LinkContainer>
                   <LinkContainer to='/admin/users'>
                     <NavDropdown.Item>Users</NavDropdown.Item>
+                  </LinkContainer>
+
+                  {/* lesson 11 */}
+                  {/* Orders link with badge */}
+                  <LinkContainer to='/admin/orders'>
+                    <NavDropdown.Item>
+                      Orders{' '}
+                      {summaryData && summaryData[0] && (
+                        // if orders is greater than zero then display the success pill
+                        <Badge pill bg='success'>
+                          {summaryData[0].numOrders}
+                        </Badge>
+                      )}
+                    </NavDropdown.Item>
+                  </LinkContainer>
+                  {/* Messages link with badge */}
+                  <LinkContainer to='/admin/messages'>
+                    <NavDropdown.Item>
+                      Messages{' '}
+                      {messagesCount > 0 && (
+                        // if messages is greater than zero then display the success pill
+                        <Badge pill bg='success'>
+                          {messagesCount}
+                        </Badge>
+                      )}
+                    </NavDropdown.Item>
                   </LinkContainer>
                 </NavDropdown>
               )}

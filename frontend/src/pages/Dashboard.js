@@ -1,56 +1,66 @@
 import React, { useContext, useEffect, useReducer } from 'react';
-import Chart from 'react-google-charts'; // Importing chart component
-import axios from 'axios'; // Axios for making HTTP requests
+import Chart from 'react-google-charts';
+import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
-import { Store } from '../Store'; // Importing Store context
-import { getError } from '../utils'; // Util function for handling errors
-import LoadingBox from '../components/LoadingBox'; // Loading component
-import MessageBox from '../components/MessageBox'; // Message box component
-import { Row, Col, Card } from 'react-bootstrap'; // Bootstrap components
+import { Store } from '../Store';
+import { getError } from '../utils';
+import LoadingBox from '../components/LoadingBox';
+import MessageBox from '../components/MessageBox';
+import { Row, Col, Card } from 'react-bootstrap';
 
-// Reducer function for managing state transitions from backend
 const reducer = (state, action) => {
   switch (action.type) {
     case 'FETCH_REQUEST':
-      return { ...state, loading: true }; // Set loading to true when fetching data
+      return { ...state, loading: true };
     case 'FETCH_SUCCESS':
       return {
         ...state,
-        summary: action.payload, // Set summary data on successful fetch
-        loading: false, // Set loading to false
+        summary: action.payload,
+        loading: false,
       };
     case 'FETCH_FAIL':
-      return { ...state, loading: false, error: action.payload }; // Set error message on fetch failure
+      return { ...state, loading: false, error: action.payload };
     default:
       return state;
   }
 };
 
-// Dashboard component
 export default function Dashboard() {
   const [{ loading, summary, error }, dispatch] = useReducer(reducer, {
-    loading: true, // Initial loading state
-    error: '', // Initial error state
+    loading: true,
+    error: '',
   });
-  const { state } = useContext(Store); // Accessing state from context
-  const { userInfo } = state; // Destructuring user info from state
+  const { state } = useContext(Store);
+  const { userInfo } = state;
 
   useEffect(() => {
     const fetchData = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       try {
-        const { data } = await axios.get('/api/orders/summary', {
-          headers: { Authorization: `Bearer ${userInfo.token}` }, // Sending authorization token with request
+        const { data: summaryData } = await axios.get('/api/orders/summary', {
+          headers: { Authorization: `Bearer ${userInfo.token}` },
         });
-        dispatch({ type: 'FETCH_SUCCESS', payload: data }); // Dispatching success action with fetched data
+
+        const { data: messagesData } = await axios.get('/api/messages'); // Fetch messages
+
+        // lesson 11
+        dispatch({
+          type: 'FETCH_SUCCESS',
+          payload: {
+            ...summaryData, // Existing summary data
+            messages: messagesData, // Add messages to payload
+          },
+        });
       } catch (err) {
         dispatch({
           type: 'FETCH_FAIL',
-          payload: getError(err), // Dispatching failure action with error message
+          payload: getError(err),
         });
       }
     };
-    fetchData(); // Fetch data on component mount
-  }, [userInfo]); // Trigger useEffect when userInfo changes
+    fetchData();
+  }, [userInfo]);
 
   return (
     <div className='content'>
@@ -60,19 +70,16 @@ export default function Dashboard() {
       <br />
       <h2 className='box'>Admin Dashboard</h2>
       {loading ? (
-        <LoadingBox /> // Display loading box while data is being fetched
+        <LoadingBox />
       ) : error ? (
-        <MessageBox variant='danger'>{error}</MessageBox> // Display error message if fetch fails
+        <MessageBox variant='danger'>{error}</MessageBox>
       ) : (
         <>
-          {/* Render dashboard content when data is loaded successfully */}
           <Row className='mt-3'>
-            {/* Displaying user, order, and total sales count */}
             <Col md={3}>
               <Card>
                 <Card.Body>
                   <Card.Title>
-                    {/* If summary user exists and show summary users otherwise show 0 */}
                     {summary.users && summary.users[0]
                       ? summary.users[0].numUsers
                       : 0}
@@ -86,7 +93,6 @@ export default function Dashboard() {
               <Card>
                 <Card.Body>
                   <Card.Title>
-                    {/* If summary order exists and show summary orders otherwise show 0 */}
                     {summary.orders && summary.users[0]
                       ? summary.orders[0].numOrders
                       : 0}
@@ -111,14 +117,14 @@ export default function Dashboard() {
               </Card>
             </Col>
 
-            {/* future lesson */}
+            {/* lesson 11 */}
             <Col md={3}>
               <Card>
                 <Card.Body>
                   <Card.Title>
                     {summary.messages ? summary.messages.length : 0}
                   </Card.Title>
-                  <Card.Text>Messages</Card.Text>
+                  <Card.Text> Messages</Card.Text>
                 </Card.Body>
               </Card>
             </Col>
@@ -128,7 +134,7 @@ export default function Dashboard() {
           <div className='my-3'>
             <h2>Sales</h2>
             {summary.dailyOrders.length === 0 ? (
-              <MessageBox>No Sale</MessageBox> // Show message if no sales data available
+              <MessageBox>No Sale</MessageBox>
             ) : (
               <Chart
                 width='100%'
@@ -136,18 +142,17 @@ export default function Dashboard() {
                 chartType='AreaChart'
                 loader={<div>Loading Chart...</div>}
                 data={[
-                  ['Date', 'Sales'], // passing an array of data within an the group array
+                  ['Date', 'Sales'],
                   ...summary.dailyOrders.map((x) => [x._id, x.sales]),
                 ]}
-              ></Chart> // Display sales chart
+              ></Chart>
             )}
           </div>
 
-          {/* Displaying categories chart */}
           <div className='my-3'>
             <h2>Categories</h2>
             {summary.productCategories.length === 0 ? (
-              <MessageBox>No Category</MessageBox> // Show message if no category data available
+              <MessageBox>No Category</MessageBox>
             ) : (
               <Chart
                 width='100%'
@@ -156,9 +161,9 @@ export default function Dashboard() {
                 loader={<div>Loading Chart...</div>}
                 data={[
                   ['Category', 'Products'],
-                  ...summary.productCategories.map((x) => [x._id, x.count]), // shows the category _id and the count %
+                  ...summary.productCategories.map((x) => [x._id, x.count]),
                 ]}
-              ></Chart> // Display categories chart
+              ></Chart>
             )}
           </div>
           <br />

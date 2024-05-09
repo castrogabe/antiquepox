@@ -7,8 +7,9 @@ import productRouter from './routes/productRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import orderRouter from './routes/orderRoutes.js';
 import uploadRouter from './routes/uploadRoutes.js';
-import stripeRouter from './routes/stripeRoutes.js'; // Router for Stripe payment routes, lesson 10
-import cors from 'cors'; // CORS middleware for handling Cross-Origin Resource Sharing, lesson 10
+import stripeRouter from './routes/stripeRoutes.js';
+import messageRouter from './routes/messageRoutes.js'; // lesson 11
+import cors from 'cors';
 
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -42,7 +43,8 @@ app.use('/api/seed', seedRouter);
 app.use('/api/products', productRouter);
 app.use('/api/users', userRouter);
 app.use('/api/orders', orderRouter);
-app.use('/api/stripe', stripeRouter); // lesson 10
+app.use('/api/stripe', stripeRouter);
+app.use('/api/messages', messageRouter); // lesson 11
 
 const __dirname = path.resolve();
 

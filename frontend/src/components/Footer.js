@@ -63,18 +63,24 @@ const Footer = () => {
         <Col md={4}>
           Merchandise Questions
           <div className='socialIcon'>
-            <a href='mailto:email@gmail.com' className='email'>
-              <i className='fa fa-envelope'></i> Contact Us
-            </a>
-          </div>
-          <ul className='list-unstyled'>
-            <li>
-              <Link to='/askedQuestions' className='email'>
-                {' '}
-                <i className='fa fa-info'></i> FAQ
+            <ul className='list-unstyled'>
+              <Link to='/contact' className='email'>
+                <i className='fa fa-envelope'></i> Contact Us
               </Link>
-            </li>
-          </ul>
+              <li>
+                {/* use your email */}
+                <a href='mailto:gabudemy@gmail.com' className='email'>
+                  <i className='fa fa-envelope'></i> Email Me via gmail
+                </a>
+              </li>
+              <li>
+                <Link to='/askedQuestions' className='email'>
+                  {' '}
+                  <i className='fa fa-info'></i> FAQ
+                </Link>
+              </li>
+            </ul>
+          </div>
         </Col>
       </Row>
 

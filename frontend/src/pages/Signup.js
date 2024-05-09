@@ -83,7 +83,7 @@ export default function Signup() {
                 <Form.Label>Confirm Password</Form.Label>
                 <Form.Control
                   type='password'
-                  placeholder='Example: minimum length, uppercase, lowercase, digit, and special character' // lesson 10
+                  placeholder='Example: minimum length 8 digits, uppercase, lowercase, digit, and special character' // lesson 10
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />

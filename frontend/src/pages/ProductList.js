@@ -3,12 +3,12 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Row, Col, Button, Table } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
 import { toast } from 'react-toastify';
 import { Store } from '../Store';
 import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import { getError } from '../utils';
+import AdminPagination from '../components/AdminPagination';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -229,24 +229,12 @@ export default function ProductList() {
             </Table>
           </div>
 
-          {/* Pagination */}
-          <div>
-            {[...Array(pages).keys()].map((x) => (
-              <LinkContainer
-                key={x + 1}
-                className='mx-1'
-                to={`/admin/products?page=${x + 1}`}
-              >
-                <Button
-                  className={Number(page) === x + 1 ? 'text-bold' : ''}
-                  variant='light'
-                >
-                  {x + 1}
-                </Button>
-              </LinkContainer>
-            ))}
-          </div>
-
+          {/* Admin Pagination */}
+          <AdminPagination
+            currentPage={page}
+            totalPages={pages}
+            isAdmin={true}
+          />
           <br />
         </>
       )}

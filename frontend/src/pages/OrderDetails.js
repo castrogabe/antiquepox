@@ -10,8 +10,8 @@ import MessageBox from '../components/MessageBox';
 import { Store } from '../Store';
 import { getError } from '../utils';
 import { toast } from 'react-toastify';
-import { loadStripe } from '@stripe/stripe-js/pure'; // lesson 10
-import StripeCheckout from '../components/StripeCheckout'; // lesson 10
+import { loadStripe } from '@stripe/stripe-js/pure';
+import StripeCheckout from '../components/StripeCheckout';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -29,8 +29,6 @@ function reducer(state, action) {
       return { ...state, loadingPay: false };
     case 'PAY_RESET':
       return { ...state, loadingPay: false, successPay: false };
-
-    // lesson 10
     case 'SHIPPED_REQUEST':
       return { ...state, loadingShipped: true };
     case 'SHIPPED_SUCCESS':
@@ -70,10 +68,10 @@ export default function OrderDetails() {
       error,
       order,
       successPay,
-      loadingShipped, // lesson 10
-      successShipped, // lesson 10
-      shipEmailTemplate, // lesson 10
-      transporter, // lesson 10
+      loadingShipped,
+      successShipped,
+      shipEmailTemplate,
+      transporter,
     },
     dispatch,
   ] = useReducer(reducer, {
@@ -193,7 +191,6 @@ export default function OrderDetails() {
     toast.error(getError(err));
   };
 
-  // lesson 10
   const handleStripeSuccess = async (paymentResult) => {
     try {
       dispatch({ type: 'PAY_REQUEST' });
@@ -221,7 +218,6 @@ export default function OrderDetails() {
     e.preventDefault();
     try {
       dispatch({ type: 'SHIPPED_REQUEST' });
-      // Make an API call to update the order with the shipping information lesson 10
       const { data } = await axios.put(
         `/api/orders/${order._id}/shipped`,
         {

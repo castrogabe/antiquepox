@@ -11,32 +11,35 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 // admin pages
 import Dashboard from './pages/Dashboard';
-import ProductList from './pages/ProductList';
-import ProductEdit from './pages/ProductEdit';
+import Messages from './pages/Messages'; // lesson 11
 import OrderList from './pages/OrderList';
-import UserList from './pages/UserList';
+import ProductEdit from './pages/ProductEdit';
+import ProductList from './pages/ProductList';
 import UserEdit from './pages/UserEdit';
+import UserList from './pages/UserList';
 
 // pages
 import AboutUs from './pages/AboutUs';
 import AskedQuestions from './pages/AskedQuestions';
-import Cart from './pages/Cart';
+import Cart from './pages/Cart'; // step 1
+import Contact from './pages/Contact'; // lesson 11
+import Design from './pages/Design';
+import ForgetPassword from './pages/ForgetPassword';
 import Gallery from './pages/Gallery';
 import Home from './pages/Home';
-import OrderHistory from './pages/OrderHistory';
-import OrderDetails from './pages/OrderDetails';
-import PaymentMethod from './pages/PaymentMethod';
-import PlaceOrder from './pages/PlaceOrder';
+import PaymentMethod from './pages/PaymentMethod'; // step 3
+import PlaceOrder from './pages/PlaceOrder'; // step 4
 import ProductMag from './pages/ProductMag';
-import Profile from './pages/Profile';
-import ShippingAddress from './pages/ShippingAddress';
+import ResetPassword from './pages/ResetPassword';
+import Search from './pages/Search';
+import ShippingAddress from './pages/ShippingAddress'; // step 2
 import Signin from './pages/Signin';
 import Signup from './pages/Signup';
-import Design from './pages/Design';
-import Search from './pages/Search';
 
-import ForgetPassword from './pages/ForgetPassword'; // lesson 10
-import ResetPassword from './pages/ResetPassword'; // lesson 10
+// user protected pages
+import OrderDetails from './pages/OrderDetails';
+import OrderHistory from './pages/OrderHistory';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -48,6 +51,7 @@ function App() {
           <Route path='/about' element={<AboutUs />} />
           <Route path='/askedQuestions' element={<AskedQuestions />} />
           <Route path='/cart' element={<Cart />} />
+          <Route path='/contact' element={<Contact />} /> {/* lesson 11 */}
           <Route path='/design' element={<Design />} />
           <Route path='/' element={<Home />} />
           <Route path='/gallery' element={<Gallery />} />
@@ -58,11 +62,8 @@ function App() {
           <Route path='/shipping' element={<ShippingAddress />} />
           <Route path='/signin' element={<Signin />} />
           <Route path='/signup' element={<Signup />} />
-
-          {/* Lesson 10 */}
           <Route path='/forget-password' element={<ForgetPassword />} />
           <Route path='/reset-password/:token' element={<ResetPassword />} />
-
           {/* Protected Routes */}
           <Route
             path='/profile'
@@ -88,7 +89,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           {/* Admin Routes */}
           <Route
             path='/admin/dashboard'
@@ -138,6 +138,15 @@ function App() {
               </AdminRoute>
             }
           />
+          {/* lesson 11 */}
+          <Route
+            path='/admin/messages'
+            element={
+              <AdminRoute>
+                <Messages />
+              </AdminRoute>
+            }
+          ></Route>
         </Routes>
       </main>
       <Footer />

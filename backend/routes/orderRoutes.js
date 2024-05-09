@@ -14,6 +14,30 @@ import {
 
 const orderRouter = express.Router();
 
+export const PAGE_SIZE = 12; // 12 items per page
+
+orderRouter.get(
+  '/admin',
+  isAuth,
+  isAdmin,
+  expressAsyncHandler(async (req, res) => {
+    const { query } = req;
+    const page = query.page || 1;
+    const pageSize = query.pageSize || PAGE_SIZE;
+
+    const orders = await Order.find()
+      .skip(pageSize * (page - 1))
+      .limit(pageSize);
+    const countOrders = await Order.countDocuments();
+    res.send({
+      orders,
+      totalOrders: countOrders, // Include totalOrders in the response
+      page,
+      pages: Math.ceil(countOrders / pageSize),
+    });
+  })
+);
+
 orderRouter.get(
   '/',
   isAuth,
@@ -128,7 +152,6 @@ orderRouter.put(
         email_address: req.body.email_address,
       };
 
-      // lesson 10
       // Update count in stock for each item in the order
       const updatedOrder = await order.save();
       for (const index in updatedOrder.orderItems) {
@@ -157,7 +180,7 @@ orderRouter.put(
         emailContent = {
           from: 'gabudemy@gmail.com', // add your email
           to: customerEmail,
-          subject: 'Stripe Purchase Receipt from antiquepox.com', // email subject
+          subject: 'Stripe Purchase Receipt from antiquepox.com', // email subject replace with your website
           html: purchaseDetails,
         };
       }
@@ -201,9 +224,9 @@ orderRouter.put(
 
     // Create email content for the shipping confirmation
     const emailContent = {
-      from: 'gabudemy@gmail.com',
+      from: 'gabudemy@gmail.com', // replace with your email
       to: customerEmail,
-      subject: 'Shipping notification from antiquepox.com', // email subject
+      subject: 'Shipping notification from antiquepox.com', // email subject replace with your website
       html: shippingDetails,
     };
 

@@ -3,12 +3,12 @@ import React, { useContext, useEffect, useReducer } from 'react';
 import { toast } from 'react-toastify';
 import { Button, Table } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import { Store } from '../Store';
 import { getError } from '../utils';
-import Pagination from '../components/Pagination';
+import AdminPagination from '../components/AdminPagination';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -17,7 +17,9 @@ const reducer = (state, action) => {
     case 'FETCH_SUCCESS':
       return {
         ...state,
-        orders: action.payload,
+        orders: action.payload.orders,
+        totalOrders: action.payload.totalOrders, // Include totalOrders in the state
+        page: action.payload.page,
         pages: action.payload.pages,
         loading: false,
       };
@@ -42,21 +44,25 @@ const reducer = (state, action) => {
 
 export default function OrderList() {
   const navigate = useNavigate();
+  const { search } = useLocation();
+  const sp = new URLSearchParams(search);
+  const page = sp.get('page') || 1;
+
   const { state } = useContext(Store);
   const { userInfo } = state;
   const [
-    { loading, error, orders, loadingDelete, successDelete, page, pages },
+    { loading, error, orders, totalOrders, pages, successDelete },
     dispatch,
   ] = useReducer(reducer, {
     loading: true,
     error: '',
+    page: 1,
   });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        dispatch({ type: 'FETCH_REQUEST' });
-        const { data } = await axios.get(`/api/orders`, {
+        const { data } = await axios.get(`/api/orders/admin?page=${page}`, {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         });
         dispatch({ type: 'FETCH_SUCCESS', payload: data });
@@ -72,7 +78,7 @@ export default function OrderList() {
     } else {
       fetchData();
     }
-  }, [userInfo, successDelete]);
+  }, [page, userInfo, successDelete]);
 
   const deleteHandler = async (order) => {
     if (window.confirm('Are you sure to delete?')) {
@@ -86,7 +92,7 @@ export default function OrderList() {
         });
         dispatch({ type: 'DELETE_SUCCESS' });
       } catch (err) {
-        toast.error(getError(error));
+        toast.error(getError(err));
         dispatch({
           type: 'DELETE_FAIL',
         });
@@ -103,21 +109,17 @@ export default function OrderList() {
     return `${month}-${day}-${year}`;
   }
 
-  // Pagination
-  const getFilterUrl = (filter) => {
-    const filterPage = filter.page || page;
-    return `/?&page=${filterPage}`;
-  };
-
   return (
     <div className='content'>
       <Helmet>
         <title>Order List</title>
       </Helmet>
       <br />
-      <h4 className='box'>Order List</h4>
+      <h4 className='box'>
+        Order List Page (
+        {totalOrders !== undefined ? totalOrders : 'Loading...'} )
+      </h4>
       <div className='box'>
-        {loadingDelete && <LoadingBox />}
         {loading ? (
           <LoadingBox />
         ) : error ? (
@@ -151,6 +153,7 @@ export default function OrderList() {
                           alt={item.name}
                           className='img-fluid rounded img-thumbnail'
                         />
+                        <br />
                         <Link to={`/product/${item.slug}`}>{item.name}</Link>
                       </div>
                     ))}
@@ -221,12 +224,14 @@ export default function OrderList() {
         )}
       </div>
 
-      {/* Pagination Component */}
-      <Pagination
+      {/* Admin Pagination */}
+      <AdminPagination
         currentPage={page}
         totalPages={pages}
-        getFilterUrl={getFilterUrl}
+        isAdmin={true} // or false based on whether it's admin or not
+        keyword='OrderList' // Specify the keyword for OrderList pagination
       />
+
       <br />
     </div>
   );

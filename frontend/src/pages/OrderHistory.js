@@ -66,7 +66,7 @@ export default function OrderHistory() {
       <h4 className='box'>{userInfo.name}'s Order History</h4>
       <div className='box'>
         {loading ? (
-          <LoadingBox></LoadingBox>
+          <LoadingBox />
         ) : error ? (
           <MessageBox variant='danger'>{error}</MessageBox>
         ) : (

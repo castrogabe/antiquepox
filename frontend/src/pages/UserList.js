@@ -2,15 +2,14 @@ import axios from 'axios';
 import React, { useContext, useEffect, useReducer } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import { Store } from '../Store';
 import { getError } from '../utils';
-import Pagination from '../components/Pagination';
+import AdminPagination from '../components/AdminPagination';
 
-// Reducer function to manage state
 const reducer = (state, action) => {
   switch (action.type) {
     case 'FETCH_REQUEST':
@@ -18,7 +17,10 @@ const reducer = (state, action) => {
     case 'FETCH_SUCCESS':
       return {
         ...state,
-        users: action.payload,
+        users: action.payload.users,
+        totalUsers: action.payload.totalUsers, // Include totalUsers in the state
+        page: action.payload.page,
+        pages: action.payload.pages,
         loading: false,
       };
     case 'FETCH_FAIL':
@@ -42,25 +44,33 @@ const reducer = (state, action) => {
 
 export default function UserList() {
   const navigate = useNavigate();
-
-  // Initialize state using useReducer
+  const { search } = useLocation();
+  const sp = new URLSearchParams(search);
+  const page = sp.get('page') || 1;
   const [
-    { loading, error, users, loadingDelete, successDelete, page, pages },
+    {
+      loading,
+      error,
+      users,
+      totalUsers, // Include totalUsers in the state
+      loadingDelete,
+      successDelete,
+      pages,
+    },
     dispatch,
   ] = useReducer(reducer, {
     loading: true,
     error: '',
+    users: [],
   });
 
-  // Accessing global state from context
   const { state } = useContext(Store);
   const { userInfo } = state;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        dispatch({ type: 'FETCH_REQUEST' });
-        const { data } = await axios.get(`/api/users`, {
+        const { data } = await axios.get(`/api/users/admin?page=${page}`, {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         });
         dispatch({ type: 'FETCH_SUCCESS', payload: data });
@@ -71,16 +81,13 @@ export default function UserList() {
         });
       }
     };
-
-    // Fetch data when component mounts or successDelete state changes
     if (successDelete) {
       dispatch({ type: 'DELETE_RESET' });
     } else {
       fetchData();
     }
-  }, [userInfo, successDelete]);
+  }, [page, userInfo, successDelete]);
 
-  // Function to handle user deletion
   const deleteHandler = async (user) => {
     if (window.confirm('Are you sure to delete?')) {
       try {
@@ -88,7 +95,9 @@ export default function UserList() {
         await axios.delete(`/api/users/${user._id}`, {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         });
-        toast.success('User deleted successfully');
+        toast.success('user deleted successfully', {
+          autoClose: 1000, // Duration in milliseconds (1 second)
+        });
         dispatch({ type: 'DELETE_SUCCESS' });
       } catch (error) {
         toast.error(getError(error));
@@ -99,19 +108,15 @@ export default function UserList() {
     }
   };
 
-  // Pagination
-  const getFilterUrl = (filter) => {
-    const filterPage = filter.page || page;
-    return `/?&page=${filterPage}`;
-  };
-
   return (
     <div className='content'>
       <Helmet>
         <title>Users</title>
       </Helmet>
       <br />
-      <h4 className='box'>Users</h4>
+      <h4 className='box'>
+        Users ({totalUsers !== undefined ? totalUsers : 'Loading...'})
+      </h4>
       <div className='box'>
         {loadingDelete && <LoadingBox />}
         {loading ? (
@@ -160,11 +165,12 @@ export default function UserList() {
         )}
       </div>
 
-      {/* Pagination Component */}
-      <Pagination
+      {/* Admin Pagination */}
+      <AdminPagination
         currentPage={page}
         totalPages={pages}
-        getFilterUrl={getFilterUrl}
+        isAdmin={true} // or false based on whether it's admin or not
+        keyword='UserList' // Specify the keyword for UserList pagination
       />
       <br />
     </div>
