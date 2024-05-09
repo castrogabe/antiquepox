@@ -496,3 +496,7 @@ cd root > npm init (this creates a {}package.json in the root)
 . push code to github before next step
 . https://render.com - create account / Connect to GitHub for repository
 . https://www.gabewd.com - Deployment dropdown > MernRender
+
+# Fourteenth Commit-Deployment, Render ** Final **
+
+. edit {}package.json in root, adding --force
