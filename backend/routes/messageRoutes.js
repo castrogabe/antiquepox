@@ -1,7 +1,7 @@
-import express from 'express'; // Import express framework
-import expressAsyncHandler from 'express-async-handler'; // Import expressAsyncHandler for handling asynchronous middleware
-import Message from '../models/messageModel.js'; // Import Message model
-import { isAuth, isAdmin, transporter } from '../utils.js'; // Import utility functions and middlewares
+const express = require('express'); // Import express framework
+const expressAsyncHandler = require('express-async-handler'); // Import expressAsyncHandler for handling asynchronous middleware
+const Message = require('../models/messageModel.js'); // Import Message model
+const { isAuth, isAdmin, transporter } = require('../utils.js'); // Import utility functions and middlewares
 
 const messageRouter = express.Router(); // Create a router instance for messages
 
@@ -136,4 +136,4 @@ messageRouter.post('/reply', async (req, res) => {
   }
 });
 
-export default messageRouter; // Export the messageRouter for use in other files
+module.exports = messageRouter; // Export the messageRouter for use in other files

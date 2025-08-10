@@ -1,19 +1,39 @@
-import express from 'express';
-import bcrypt from 'bcryptjs';
-import expressAsyncHandler from 'express-async-handler';
-import jwt from 'jsonwebtoken';
-import User from '../models/userModel.js';
-import {
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const expressAsyncHandler = require('express-async-handler');
+const jwt = require('jsonwebtoken');
+const dns = require('dns');
+const User = require('../models/userModel.js');
+const {
   isAuth,
   isAdmin,
   generateToken,
   baseUrl,
   transporter,
-} from '../utils.js';
+} = require('../utils.js');
+const rateLimit = require('express-rate-limit');
 
 const userRouter = express.Router();
 
-export const PAGE_SIZE = 12; // 12 items per page
+const PAGE_SIZE = 12;
+
+const resetLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 5, // Limit each IP to 5 requests
+  message: 'Too many password reset attempts. Please try again later.',
+});
+
+const signinLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // limit each IP to 10 signin attempts
+  message: 'Too many login attempts. Please try again in 15 minutes.',
+});
+
+const signupLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // limit each IP to 5 signup attempts per hour
+  message: 'Too many sign up attempts. Please try again later.',
+});
 
 userRouter.get(
   '/admin',
@@ -89,32 +109,28 @@ userRouter.put(
 
 userRouter.post(
   '/forget-password',
+  resetLimiter, // 👈 middleware inserted here
   expressAsyncHandler(async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
 
     if (user) {
       const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: '10m', // Set expiration time for the token
+        expiresIn: '10m',
       });
       user.resetToken = token;
       await user.save();
 
-      console.log(`${baseUrl()}/reset-password/${token}`);
-
       const emailContent = {
-        from: 'gabudemy.com', // Sender email replace with your email
-        to: `${user.name} <${user.email}>`, // Receiver email
-        subject: `Reset Password`, // Email subject
-        html: ` 
-        <p>Please Click the following link to reset your password, link expires in 10 minutes</p> 
-        <a href="${baseUrl()}/reset-password/${token}"}>Reset Password</a>
-        `,
+        from: 'gabudemy@gmail.com',
+        to: `${user.name} <${user.email}>`,
+        subject: 'Reset Password',
+        html: `<p>Please click the link below to reset your password (valid for 10 minutes):</p>
+              <a href="${baseUrl()}/reset-password/${token}">Reset Password</a>`,
       };
 
       try {
-        // Send the email using the nodemailer transporter
-        const info = await transporter.sendMail(emailContent);
-        res.send({ message: 'We sent reset password link to your email.' });
+        await transporter.sendMail(emailContent);
+        res.send({ message: 'We sent a reset password link to your email.' });
       } catch (error) {
         console.error('Error sending email:', error);
         res.status(500).send({ message: 'Error sending email.' });
@@ -203,6 +219,7 @@ userRouter.delete(
 
 userRouter.post(
   '/signin',
+  signinLimiter, // 👈 Rate limiter added
   expressAsyncHandler(async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
     if (user) {
@@ -223,6 +240,7 @@ userRouter.post(
 
 userRouter.post(
   '/signup',
+  signupLimiter, // 👈 Rate limiter added
   expressAsyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
 
@@ -261,4 +279,4 @@ userRouter.post(
   })
 );
 
-export default userRouter;
+module.exports = userRouter;

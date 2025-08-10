@@ -1,7 +1,7 @@
-import express from 'express';
-import expressAsyncHandler from 'express-async-handler';
-import Product from '../models/productModel.js';
-import { isAuth, isAdmin } from '../utils.js';
+const express = require('express');
+const expressAsyncHandler = require('express-async-handler');
+const Product = require('../models/productModel.js');
+const { isAuth, isAdmin } = require('../utils.js');
 
 const productRouter = express.Router();
 
@@ -241,4 +241,4 @@ productRouter.get('/:id', async (req, res) => {
   }
 });
 
-export default productRouter;
+module.exports = productRouter;

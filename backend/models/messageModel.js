@@ -1,8 +1,8 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const messageSchema = new mongoose.Schema(
   {
-    update_time: { type: String },
+    update_time: { type: String }, // Assuming 'update_time' is a String
     fullName: { type: String, required: true },
     email: { type: String, required: true },
     subject: { type: String, required: true },
@@ -18,4 +18,5 @@ const messageSchema = new mongoose.Schema(
 );
 
 const Message = mongoose.model('Message', messageSchema);
-export default Message;
+
+module.exports = Message;

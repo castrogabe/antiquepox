@@ -1,7 +1,7 @@
 // http://localhost:8000/api/seed
 // go to this link and it will load the data into the database
 
-import bcrypt from 'bcryptjs';
+const bcrypt = require('bcryptjs');
 
 const data = {
   users: [
@@ -21,7 +21,7 @@ const data = {
   products: [
     {
       name: 'Asian Snuff Bottle',
-      slug: 'Snuff Bottle',
+      slug: 'snuff-bottle',
       category: 'Asian',
       image: '/images/1a.jpg',
       price: 50,
@@ -35,7 +35,7 @@ const data = {
     },
     {
       name: 'Madonna and Child',
-      slug: 'Madonna and Child',
+      slug: 'madonna-and-child',
       category: 'Religious',
       image: '/images/2a.jpg',
       price: 50,
@@ -48,7 +48,7 @@ const data = {
     },
     {
       name: 'Carved Wood Cup',
-      slug: 'Carved Wood Cup',
+      slug: 'carved-wood-cup',
       category: 'Asian',
       image: '/images/3a.jpg',
       price: 50,
@@ -61,7 +61,7 @@ const data = {
     },
     {
       name: 'Spiral Staircase',
-      slug: 'Staircase',
+      slug: 'staircase',
       category: 'Wood',
       image: '/images/4a.jpg',
       price: 500,
@@ -75,7 +75,7 @@ const data = {
     },
     {
       name: 'Jade Grapes',
-      slug: 'Jade Grapes',
+      slug: 'jade-grapes',
       category: 'Asian',
       image: '/images/5a.jpg',
       price: 100,
@@ -88,7 +88,7 @@ const data = {
     },
     {
       name: 'Terra Cotta Jug',
-      slug: 'Terra Cotta Jug',
+      slug: 'terra-cotta-jug',
       category: 'Ceramic',
       image: '/images/6a.jpg',
       price: 100,
@@ -101,7 +101,7 @@ const data = {
     },
     {
       name: 'Metal Asian Horse',
-      slug: 'Horse',
+      slug: 'horse',
       category: 'Metal',
       image: '/images/7a.jpg',
       price: 25,
@@ -115,7 +115,7 @@ const data = {
     },
     {
       name: 'Asian Nun',
-      slug: 'Asian Nun',
+      slug: 'asian-nun',
       category: 'Religious',
       image: '/images/8a.jpg',
       price: 25,
@@ -128,7 +128,7 @@ const data = {
     },
     {
       name: 'Celadon Brush Pot',
-      slug: 'Celadon Brush Pot',
+      slug: 'celadon-brush-pot',
       category: 'Asian',
       image: '/images/9a.jpg',
       price: 125,
@@ -141,7 +141,7 @@ const data = {
     },
     {
       name: 'Asian Clock',
-      slug: 'Asian Clock',
+      slug: 'asian-clock',
       category: 'Clock',
       image: '/images/10a.jpg',
       price: 50,
@@ -155,7 +155,7 @@ const data = {
     },
     {
       name: 'Sandstone MudMan',
-      slug: 'Sandstone MudMan',
+      slug: 'sandstone-mudMan',
       category: 'Asian',
       image: '/images/11a.jpg',
       price: 125,
@@ -169,7 +169,7 @@ const data = {
 
     {
       name: 'Wood Bowl Branch',
-      slug: 'Bowl',
+      slug: 'bowl',
       category: 'Wood',
       image: '/images/12b.jpg',
       price: 250,
@@ -183,7 +183,7 @@ const data = {
     },
     {
       name: 'Asian Rice Container',
-      slug: 'Container',
+      slug: 'container',
       category: 'Asian',
       image: '/images/13a.jpg',
       price: 300,
@@ -197,7 +197,7 @@ const data = {
     },
     {
       name: 'Pablo Picasso Print',
-      slug: 'Art Print',
+      slug: 'art-print',
       category: 'Art',
       image: '/images/14a.jpg',
       price: 500,
@@ -210,7 +210,7 @@ const data = {
     },
     {
       name: 'Alice Sweede Painting',
-      slug: 'Art Painting',
+      slug: 'art-painting',
       category: 'Art',
       image: '/images/15a.jpg',
       price: 300,
@@ -223,7 +223,7 @@ const data = {
     },
     {
       name: 'Granite Foot Stool',
-      slug: 'Foot Stool',
+      slug: 'foot-stool',
       category: 'Asian',
       image: '/images/16a.jpg',
       price: 300,
@@ -237,7 +237,7 @@ const data = {
 
     {
       name: 'Mantle Clock',
-      slug: 'Mantle Clock',
+      slug: 'mantle-clock',
       category: 'Clock',
       image: '/images/7a.jpg',
       price: 200,
@@ -251,7 +251,7 @@ const data = {
     },
     {
       name: 'Rose Medallion Plate',
-      slug: 'Plate',
+      slug: 'plate',
       category: 'Asian',
       image: '/images/18a.jpg',
       price: 100,
@@ -265,7 +265,7 @@ const data = {
     },
     {
       name: 'Pablo Picasso Dove Print',
-      slug: 'Pablo Picasso Dove Print',
+      slug: 'pablo-picasso-dove-print',
       category: 'Art',
       image: '/images/19a.jpg',
       price: 500,
@@ -278,7 +278,7 @@ const data = {
     },
     {
       name: 'Rose Medallion Vase',
-      slug: 'Rose Medallion Vase',
+      slug: 'rose-medallion-vase',
       category: 'Asian',
       image: '/images/20a.jpg',
       price: 250,
@@ -292,4 +292,5 @@ const data = {
     },
   ],
 };
-export default data;
+
+module.exports = data;

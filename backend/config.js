@@ -1,8 +1,8 @@
-import dotenv from 'dotenv';
+const dotenv = require('dotenv');
 
 dotenv.config();
 
-export default {
+module.exports = {
   PORT: process.env.PORT || 8000,
   JWT_SECRET: process.env.JWT_SECRET || 'asianantiques',
   MONGODB_URL: process.env.MONGODB_URI || 'mongodb://localhost/frontend',
@@ -13,11 +13,11 @@ export default {
     process.env.STRIPE_PUBLISHABLE_KEY || 'your_stripe_publishable_key',
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || 'your_stripe_secret_key',
 
-  CLOUDINARY_CLOUD_NAME: process.env.name || 'name',
-  CLOUDINARY_API_KEY: process.env.key || 'apiKey',
-  CLOUDINARY_API_SECRET: process.envCloudinary || 'secretAccessKey',
-  CLOUDINARY_URL: process.env.cloudinary || 'secretKey',
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || 'name',
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || 'apiKey',
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || 'secretAccessKey',
+  CLOUDINARY_URL: process.env.CLOUDINARY_URL || 'secretKey',
 
-  auth: process.env.NODE_USER,
-  auth: process.env.NODE_PASSWORD,
+  NODE_USER: process.env.NODE_USER,
+  NODE_PASSWORD: process.env.NODE_PASSWORD,
 };

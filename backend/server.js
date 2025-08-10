@@ -1,16 +1,19 @@
-import express from 'express';
-import path from 'path';
-import mongoose from 'mongoose';
-import config from './config.js';
-import seedRouter from './routes/seedRoutes.js';
-import productRouter from './routes/productRoutes.js';
-import userRouter from './routes/userRoutes.js';
-import orderRouter from './routes/orderRoutes.js';
-import uploadRouter from './routes/uploadRoutes.js';
-import stripeRouter from './routes/stripeRoutes.js';
-import messageRouter from './routes/messageRoutes.js';
-import cors from 'cors';
+const express = require('express');
+const path = require('path');
+const mongoose = require('mongoose');
+const config = require('./config.js');
+const cors = require('cors');
 
+// Route imports
+const seedRouter = require('./routes/seedRoutes.js');
+const stripeRouter = require('./routes/stripeRoutes.js');
+const productRouter = require('./routes/productRoutes.js');
+const userRouter = require('./routes/userRoutes.js');
+const orderRouter = require('./routes/orderRoutes.js');
+const uploadRouter = require('./routes/uploadRoutes.js');
+const messageRouter = require('./routes/messageRoutes.js');
+
+mongoose.set('strictQuery', true); // add this line
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {
@@ -44,8 +47,6 @@ app.use('/api/users', userRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/stripe', stripeRouter);
 app.use('/api/messages', messageRouter);
-
-const __dirname = path.resolve();
 
 app.use(express.static(path.join(__dirname, '/frontend/build')));
 app.get('*', (req, res) =>

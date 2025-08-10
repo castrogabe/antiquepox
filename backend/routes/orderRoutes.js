@@ -1,20 +1,20 @@
-import express from 'express';
-import expressAsyncHandler from 'express-async-handler';
-import Order from '../models/orderModel.js';
-import User from '../models/userModel.js';
-import Product from '../models/productModel.js';
-import {
+const express = require('express');
+const expressAsyncHandler = require('express-async-handler');
+const Order = require('../models/orderModel.js');
+const User = require('../models/userModel.js');
+const Product = require('../models/productModel.js');
+const {
   isAuth,
   isAdmin,
   payOrderEmailTemplate,
   shipOrderEmailTemplate,
   sendShippingConfirmationEmail,
   transporter,
-} from '../utils.js';
+} = require('../utils.js');
 
 const orderRouter = express.Router();
 
-export const PAGE_SIZE = 12; // 12 items per page
+const PAGE_SIZE = 12; // 12 items per page
 
 orderRouter.get(
   '/admin',
@@ -259,4 +259,4 @@ orderRouter.delete(
   })
 );
 
-export default orderRouter;
+module.exports = orderRouter;

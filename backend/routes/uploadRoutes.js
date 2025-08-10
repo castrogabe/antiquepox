@@ -1,8 +1,8 @@
-import express from 'express';
-import multer from 'multer';
-import { v2 as cloudinary } from 'cloudinary';
-import streamifier from 'streamifier';
-import { isAdmin, isAuth } from '../utils.js';
+const express = require('express');
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+const streamifier = require('streamifier');
+const { isAdmin, isAuth } = require('../utils.js');
 
 const upload = multer();
 const uploadRouter = express.Router();
@@ -32,9 +32,14 @@ uploadRouter.post(
       });
     };
 
-    const result = await streamUpload(req);
-    res.send(result);
+    try {
+      const result = await streamUpload(req);
+      res.send(result);
+    } catch (error) {
+      console.error('Cloudinary Upload Error:', error);
+      res.status(500).send({ message: 'Upload failed', error });
+    }
   }
 );
 
-export default uploadRouter;
+module.exports = uploadRouter;

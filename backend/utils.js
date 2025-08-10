@@ -1,5 +1,5 @@
-import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer'; // Importing Nodemailer for sending emails lesson 10
+const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 // Function to calculate the total quantity of items in the order
 const calculateTotalQuantity = (order) => {
@@ -7,15 +7,15 @@ const calculateTotalQuantity = (order) => {
 };
 
 // Function to get base URL based on environment
-export const baseUrl = () =>
+const baseUrl = () =>
   process.env.BASE_URL
     ? process.env.BASE_URL
     : process.env.NODE_ENV !== 'production'
     ? 'http://localhost:3000'
-    : 'https://antiquepox.com'; // example.com <= your website address
+    : 'https://antiquepox.com'; // Change to your domain
 
 // Function to generate JWT token for user authentication
-export const generateToken = (user) => {
+const generateToken = (user) => {
   return jwt.sign(
     {
       _id: user._id,
@@ -23,57 +23,54 @@ export const generateToken = (user) => {
       email: user.email,
       isAdmin: user.isAdmin,
     },
-    process.env.JWT_SECRET, // Secret key for token generation
+    process.env.JWT_SECRET,
     {
-      expiresIn: '30d', // Token expiration time
+      expiresIn: '30d',
     }
   );
 };
 
 // Middleware to check if user is authenticated
-export const isAuth = (req, res, next) => {
+const isAuth = (req, res, next) => {
   const authorization = req.headers.authorization;
   if (authorization) {
-    const token = authorization.slice(7, authorization.length); // Extracting token from Authorization header
+    const token = authorization.slice(7); // "Bearer xxx"
     jwt.verify(token, process.env.JWT_SECRET, (err, decode) => {
       if (err) {
-        res.status(401).send({ message: 'Invalid Token' }); // Invalid token error response
+        res.status(401).send({ message: 'Invalid Token' });
       } else {
-        req.user = decode; // Set user details in request object
-        next(); // Proceed to next middleware
+        req.user = decode;
+        next();
       }
     });
   } else {
-    res.status(401).send({ message: 'No Token' }); // No token error response
+    res.status(401).send({ message: 'No Token' });
   }
 };
 
 // Middleware to check if user is an admin
-export const isAdmin = (req, res, next) => {
+const isAdmin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
-    next(); // Proceed to next middleware if user is an admin
+    next();
   } else {
-    res.status(401).send({ message: 'Invalid Admin Token' }); // Invalid admin token error response
+    res.status(401).send({ message: 'Invalid Admin Token' });
   }
 };
 
-// Create a transporter object using SMTP transport for sending emails
-export const transporter = nodemailer.createTransport({
-  service: 'Gmail', // SMTP service provider
-  port: 587, // Port number
-  secure: false, // Set to true if using SSL/TLS
+// Nodemailer transporter config
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  port: 587,
+  secure: false,
   auth: {
-    user: process.env.NODE_USER, // Sender email address
-    pass: process.env.NODE_PASSWORD, // Sender email password
+    user: process.env.NODE_USER,
+    pass: process.env.NODE_PASSWORD,
   },
 });
 
 // Email template for order payment receipt
-export const payOrderEmailTemplate = (order) => {
-  // Calculate total quantity of items
+const payOrderEmailTemplate = (order) => {
   const totalQuantity = calculateTotalQuantity(order);
-
-  // Format date for display
   const formattedDate = `${(order.createdAt.getMonth() + 1)
     .toString()
     .padStart(2, '0')}-${order.createdAt
@@ -82,15 +79,12 @@ export const payOrderEmailTemplate = (order) => {
     .padStart(2, '0')}-${order.createdAt.getFullYear()}`;
 
   return `<h1>Thanks for shopping with antiquepox.com, we will send a confirmation when your order ships</h1>
-    <p>
-    Hi ${order.user.name},</p>
+    <p>Hi ${order.user.name},</p>
     <p>We are processing your order.</p>
     <h2>Purchase Order ${order._id} (${formattedDate})</h2>
     <table>
       <thead>
-        <tr>
-          <td><strong align="right">Item's and Price</strong></td>
-        </tr>
+        <tr><td><strong align="right">Items and Price</strong></td></tr>
       </thead>
       <tbody>
         ${order.orderItems
@@ -103,38 +97,27 @@ export const payOrderEmailTemplate = (order) => {
                 <td>${item.name}</td>
                 <td align="center">Qty: ${item.quantity}</td>
                 <td align="right"> $${item.price.toFixed(2)}</td>
-              </tr>
-            `
+              </tr>`
           )
           .join('\n')}
       </tbody>
       <tfoot>
-        <tr>
-          <td colspan="2">Total Quantity:</td>
-          <td align="right"> ${totalQuantity}</td>
-        </tr>
-        <tr>
-          <td colspan="2">Items Price:</td>
-          <td align="right"> $${order.itemsPrice.toFixed(2)}</td>
-        </tr>
-        <tr>
-          <td colspan="2">Tax Price:</td>
-          <td align="right"> $${order.taxPrice.toFixed(2)}</td>
-        </tr>
-        <tr>
-          <td colspan="2">Shipping Price:</td>
-          <td align="right"> $${order.shippingPrice.toFixed(2)}</td>
-        </tr>
-        <tr>
-          <td colspan="2"><strong>Total Price:</strong></td>
-          <td align="right"><strong> $${order.totalPrice.toFixed(
-            2
-          )}</strong></td>
-        </tr>
-        <tr>
-          <td colspan="2">Payment Method:</td>
-          <td align="right">${order.paymentMethod}</td>
-        </tr>
+        <tr><td colspan="2">Total Quantity:</td><td align="right"> ${totalQuantity}</td></tr>
+        <tr><td colspan="2">Items Price:</td><td align="right"> $${order.itemsPrice.toFixed(
+          2
+        )}</td></tr>
+        <tr><td colspan="2">Tax Price:</td><td align="right"> $${order.taxPrice.toFixed(
+          2
+        )}</td></tr>
+        <tr><td colspan="2">Shipping Price:</td><td align="right"> $${order.shippingPrice.toFixed(
+          2
+        )}</td></tr>
+        <tr><td colspan="2"><strong>Total Price:</strong></td><td align="right"><strong> $${order.totalPrice.toFixed(
+          2
+        )}</strong></td></tr>
+        <tr><td colspan="2">Payment Method:</td><td align="right">${
+          order.paymentMethod
+        }</td></tr>
       </tfoot>
     </table>
     <h2>Shipping address</h2>
@@ -146,25 +129,12 @@ export const payOrderEmailTemplate = (order) => {
       ${order.shippingAddress.postalCode}<br/>
     </p>
     <hr/>
-    <p>
-      Thanks for shopping with us.
-    </p>
-  `;
+    <p>Thanks for shopping with us.</p>`;
 };
-// end email receipt
 
-// ************************* send confirmation email *************************
-
-export const shipOrderEmailTemplate = (order) => {
-  // console.log('Order:', order);
-
-  // Calculate the total quantity
+// Email template for shipping confirmation
+const shipOrderEmailTemplate = (order) => {
   const totalQuantity = calculateTotalQuantity(order);
-
-  const deliveryDays = order.orderItems[0]?.deliveryDays || 'N/A';
-  const carrierName = order.orderItems[0]?.carrierName || 'N/A';
-  const trackingNumber = order.orderItems[0]?.trackingNumber || 'N/A';
-
   const formattedDate = `${(order.createdAt.getMonth() + 1)
     .toString()
     .padStart(2, '0')}-${order.createdAt
@@ -173,22 +143,17 @@ export const shipOrderEmailTemplate = (order) => {
     .padStart(2, '0')}-${order.createdAt.getFullYear()}`;
 
   return `<h1>Your order is on the way!</h1>
-    <p>
-    Hi ${order.user.name}, thanks for shopping with antiquepox.com</p>
-    <p>Great News, your order has been shipped, and will arrive within <strong>${
+    <p>Hi ${order.user.name}, thanks for shopping with antiquepox.com</p>
+    <p>Great news — your order has been shipped and will arrive within <strong>${
       order.deliveryDays
     }</strong> days.</p>
-    <p>Your package shipped <strong>${order.carrierName}.</strong></p>
+    <p>Your package shipped via <strong>${order.carrierName}</strong>.</p>
     <p>Your tracking number is: <strong>${order.trackingNumber}</strong></p>
-    <p>Please email me at gabudemy@gmail.com if you have any questions.</p> 
-    
-    <h2>Purchase Order ${order._id} (${formattedDate})</h2>
+    <p>Email me at gabudemy@gmail.com if you have any questions.</p> 
     <h2>Shipped Order ${order._id} (${formattedDate})</h2>
     <table>
       <thead>
-        <tr>
-          <td><strong align="right">Item's and Price</strong></td>
-        </tr>
+        <tr><td><strong align="right">Items and Price</strong></td></tr>
       </thead>
       <tbody>
         ${order.orderItems
@@ -201,38 +166,27 @@ export const shipOrderEmailTemplate = (order) => {
                 <td>${item.name}</td>
                 <td align="center">Qty: ${item.quantity}</td>
                 <td align="right"> $${item.price.toFixed(2)}</td>
-              </tr>
-            `
+              </tr>`
           )
           .join('\n')}
       </tbody>
       <tfoot>
-        <tr>
-          <td colspan="2">Total Quantity:</td>
-          <td align="right"> ${totalQuantity}</td>
-        </tr>
-        <tr>
-          <td colspan="2">Items Price:</td>
-          <td align="right"> $${order.itemsPrice.toFixed(2)}</td>
-        </tr>
-        <tr>
-          <td colspan="2">Tax Price:</td>
-          <td align="right"> $${order.taxPrice.toFixed(2)}</td>
-        </tr>
-        <tr>
-          <td colspan="2">Shipping Price:</td>
-          <td align="right"> $${order.shippingPrice.toFixed(2)}</td>
-        </tr>
-        <tr>
-          <td colspan="2"><strong>Total Price:</strong></td>
-          <td align="right"><strong> $${order.totalPrice.toFixed(
-            2
-          )}</strong></td>
-        </tr>
-        <tr>
-          <td colspan="2">Payment Method:</td>
-          <td align="right">${order.paymentMethod}</td>
-        </tr>
+        <tr><td colspan="2">Total Quantity:</td><td align="right"> ${totalQuantity}</td></tr>
+        <tr><td colspan="2">Items Price:</td><td align="right"> $${order.itemsPrice.toFixed(
+          2
+        )}</td></tr>
+        <tr><td colspan="2">Tax Price:</td><td align="right"> $${order.taxPrice.toFixed(
+          2
+        )}</td></tr>
+        <tr><td colspan="2">Shipping Price:</td><td align="right"> $${order.shippingPrice.toFixed(
+          2
+        )}</td></tr>
+        <tr><td colspan="2"><strong>Total Price:</strong></td><td align="right"><strong> $${order.totalPrice.toFixed(
+          2
+        )}</strong></td></tr>
+        <tr><td colspan="2">Payment Method:</td><td align="right">${
+          order.paymentMethod
+        }</td></tr>
       </tfoot>
     </table>
     <h2>Shipping address</h2>
@@ -244,32 +198,36 @@ export const shipOrderEmailTemplate = (order) => {
       ${order.shippingAddress.postalCode}<br/>
     </p>
     <hr/>
-    <p>
-      Thanks for shopping with us.
-    </p>
-  `;
+    <p>Thanks for shopping with us.</p>`;
 };
 
-// Shipping confirmation email thru nodemailer
-export const sendShippingConfirmationEmail = async (req, order) => {
+// Send the shipping confirmation email
+const sendShippingConfirmationEmail = async (req, order) => {
   const customerEmail = order.user.email;
-  const shippingConfirmationDetails = shipOrderEmailTemplate(order);
+  const html = shipOrderEmailTemplate(order);
 
-  // Create email content for shipping confirmation
   const emailContent = {
-    from: 'gabudemy@gmail.com', // Sender email address <= add your own email here
+    from: 'gabudemy@gmail.com',
     to: customerEmail,
-    subject: 'Shipping Confirmation from antiquepox.com', // Email subject <= add your own website here
-    html: shippingConfirmationDetails, // HTML content for email body
+    subject: 'Shipping Confirmation from antiquepox.com',
+    html,
   };
 
   try {
-    // Send the shipping confirmation email using the `transporter`
-    const info = await transporter.sendMail(emailContent);
-
-    // console.log('Shipping confirmation email sent:', info.messageId);
+    await transporter.sendMail(emailContent);
   } catch (error) {
-    // Log error message if email sending fails
     console.error('Error sending shipping confirmation email:', error);
   }
+};
+
+// ✅ CommonJS Export Block
+module.exports = {
+  baseUrl,
+  generateToken,
+  isAuth,
+  isAdmin,
+  transporter,
+  payOrderEmailTemplate,
+  shipOrderEmailTemplate,
+  sendShippingConfirmationEmail,
 };
