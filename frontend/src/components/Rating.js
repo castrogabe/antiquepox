@@ -2,7 +2,6 @@ function Rating(props) {
   const { rating, numReviews, caption } = props;
   return (
     <div className='rating'>
-      {/* greater than or equal: >= */}
       <span>
         <i
           className={

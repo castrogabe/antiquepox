@@ -1,24 +1,22 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
+// We are replacing LinkContainer with Link from react-router-dom to fix the import error.
+import { Link } from 'react-router-dom';
 
 const Pagination = ({ currentPage, totalPages, getFilterUrl }) => {
   return (
-    <div>
-      {/* Generate buttons for each page */}
-      {[...Array(totalPages).keys()].map((page) => (
-        <LinkContainer
-          key={page + 1}
-          className='mx-1'
-          to={getFilterUrl({ page: page + 1 })}
-        >
+    <div className='flex justify-center mt-6 space-x-2'>
+      {/* Loop through the total number of pages to create a button for each one */}
+      {[...Array(totalPages).keys()].map((x) => (
+        <Link key={x + 1} className='mx-1' to={getFilterUrl({ page: x + 1 })}>
           <Button
-            className={currentPage === page + 1 ? 'text-bold' : ''}
+            // Highlight the current page button
+            className={Number(currentPage) === x + 1 ? 'font-bold' : ''}
             variant='light'
           >
-            {page + 1} {/* Display page number on the button */}
+            {x + 1}
           </Button>
-        </LinkContainer>
+        </Link>
       ))}
     </div>
   );

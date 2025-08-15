@@ -45,7 +45,6 @@ export default function Contact() {
   return (
     <>
       <Container>
-        {/* lesson 12 */}
         {isLoading ? (
           <SkeletonContact />
         ) : (

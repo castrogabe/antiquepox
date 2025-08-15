@@ -196,12 +196,7 @@ function ProductMag() {
             <Carousel>
               {product.images.map((image, index) => (
                 <div key={index}>
-                  <img
-                    src={image}
-                    alt={product.name}
-                    className='img-large'
-                    loading='lazy'
-                  />
+                  <img src={image} alt={product.name} className='img-large' />
                 </div>
               ))}
             </Carousel>
@@ -218,7 +213,7 @@ function ProductMag() {
                     ref={addRefs}
                     onClick={() => openLightbox(i + 1)}
                   >
-                    <Card.Img src={image} alt='' loading='lazy' />
+                    <Card.Img src={image} alt='' />
                   </div>
                 ))}
               </div>
@@ -266,13 +261,8 @@ function ProductMag() {
                   numReviews={product.numReviews}
                 ></Rating>
               </ListGroup.Item>
-              <ListGroup.Item>
-                <Link to='/contact' className='productEmail'>
-                  Product Question?
-                </Link>
-              </ListGroup.Item>
               <ListGroup.Item>Price : ${product.price}</ListGroup.Item>
-              <ListGroup.Item>From : {product.from}</ListGroup.Item>
+              <ListGroup.Item>Style : {product.style}</ListGroup.Item>
               <ListGroup.Item>Finish : {product.finish}</ListGroup.Item>
               <ListGroup.Item>
                 Description:

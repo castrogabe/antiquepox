@@ -63,10 +63,6 @@ export default function Gallery() {
                       <Link to={`/product/${product.slug}`}>
                         <p>{product.name}</p>
                       </Link>
-                      {/* <p>
-                        <strong>${product.price}</strong>
-                      </p>
-                      <button>Add to cart</button> */}
                     </div>
                   </div>
                 ))

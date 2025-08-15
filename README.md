@@ -500,3 +500,37 @@ cd root > npm init (this creates a {}package.json in the root)
 # Fourteenth Commit-Deployment, Render ** Final **
 
 . edit {}package.json in root, adding --force
+
+# Fifteenth Commit-Update, Convert Backend to CommonJS
+
+BACKEND
+node_modules > delete
+package-lock.json > delete (reinstalled when we do npm install)
+covert to CommonJS
+package.json > remove "type": "module"
+npm install express-rate-limit
+npm install
+
+# Sixteenth Commit-Update frontend to React v18, toggle password
+
+rm -rf node_modules package-lock.json
+npm clear cache --force
+npm install --force
+
+folder: components
+AdminPagination.js > updated (Search)
+Pagination.js > updated (Search)
+BottomFooter.js > updated
+BottomHeader.js > updated (Search)
+Header.js > updated (Search)
+SearchBox.js > updated (Search)
+Sidebar.js > updated
+
+folder: pages
+Home.js > updated (Pagination Search)
+Search.js > updated (Pagination Search)
+OrderList.js > updated (AdminPagination Search)
+UserList.js > updated (AdminPagination Search)
+ProductList.js > updated (AdminPagination Search)
+Signin.js > updated toggle password
+Signup.js > updated toggle password

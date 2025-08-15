@@ -1,4 +1,4 @@
-// rfc
+import React from 'react';
 import Axios from 'axios';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Row, Col, Button, Form } from 'react-bootstrap';
@@ -17,6 +17,9 @@ export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { userInfo } = state;
 
@@ -46,6 +49,16 @@ export default function Signup() {
     }
   }, [navigate, redirect, userInfo]);
 
+  // Function to toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword); // Toggle showPassword state
+  };
+
+  // Function to toggle confirm password visibility
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword); // Toggle showConfirmPassword state
+  };
+
   return (
     <div className='content'>
       <Helmet>
@@ -63,6 +76,7 @@ export default function Signup() {
                 required
               />
             </Form.Group>
+
             <Form.Group className='mb-3' controlId='email'>
               <Form.Label>Email</Form.Label>
               <Form.Control
@@ -71,23 +85,49 @@ export default function Signup() {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </Form.Group>
+
             <Form.Group className='mb-3' controlId='password'>
               <Form.Label>Password</Form.Label>
-              <Form.Control
-                type='password'
-                placeholder='Example: minimum length, uppercase, lowercase, digit, and special character' // lesson 10
-                required
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <Form.Group className='mb-3' controlId='confirmPassword'>
-                <Form.Label>Confirm Password</Form.Label>
+              <div className='input-group'>
                 <Form.Control
-                  type='password'
-                  placeholder='Example: minimum length 8 digits, uppercase, lowercase, digit, and special character' // lesson 10
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder='Example: minimum length 8, uppercase, lowercase, digit, and special character'
                   required
+                  onChange={(e) => setPassword(e.target.value)}
                 />
-              </Form.Group>
+                <Button
+                  variant='outline-secondary'
+                  onClick={togglePasswordVisibility}
+                >
+                  <i
+                    className={`fa ${
+                      showPassword ? 'fas fa-eye-slash' : 'fa-eye'
+                    }`}
+                  ></i>
+                </Button>
+              </div>
+            </Form.Group>
+
+            <Form.Group className='mb-3' controlId='password'>
+              <Form.Label>Confirm Password</Form.Label>
+              <div className='input-group'>
+                <Form.Control
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder='Example: minimum length 8, uppercase, lowercase, digit, and special character'
+                  required
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                <Button
+                  variant='outline-secondary'
+                  onClick={toggleConfirmPasswordVisibility}
+                >
+                  <i
+                    className={`fa ${
+                      showPassword ? 'fas fa-eye-slash' : 'fa-eye'
+                    }`}
+                  ></i>
+                </Button>
+              </div>
             </Form.Group>
 
             <div className='mb-3'>

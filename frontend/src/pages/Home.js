@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import Jumbotron from '../components/Jumbotron';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import { getError } from '../utils';
@@ -8,9 +8,9 @@ import { Helmet } from 'react-helmet-async';
 import { Row, Col } from 'react-bootstrap';
 import MessageBox from '../components/MessageBox';
 import ProductCard from '../components/ProductCard';
-import Sidebar from '../components/Sidebar'; // lesson 12
-import { useMediaQuery } from 'react-responsive'; // lesson 12
-import SkeletonHome from '../components/skeletons/SkeletonHome'; // lesson 12
+import Sidebar from '../components/Sidebar';
+import { useMediaQuery } from 'react-responsive';
+import SkeletonHome from '../components/skeletons/SkeletonHome';
 import Pagination from '../components/Pagination';
 
 const reducer = (state, action) => {
@@ -35,7 +35,7 @@ const reducer = (state, action) => {
 };
 
 export default function Home() {
-  const isMobile = useMediaQuery({ maxWidth: 767 }); // lesson 12
+  const isMobile = useMediaQuery({ maxWidth: 767 });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleSidebarOpen = () => {
@@ -44,11 +44,7 @@ export default function Home() {
       setIsSidebarOpen(false);
     }, 2000); // Close sidebar 2000 milliseconds (2 second)
   };
-  // By adding the setTimeout callback inside the handleSidebarOpen function,
-  // it will open the sidebar by setting isSidebarOpen to true and then close it by
-  // setting isSidebarOpen back to false after the specified duration.
 
-  const navigate = useNavigate();
   const { search } = useLocation();
   const sp = new URLSearchParams(search); // /search?category = products
   const page = sp.get('page') || 1;
@@ -76,7 +72,7 @@ export default function Home() {
     fetchData();
   }, [page, error]);
 
-  const [categories, setCategories] = useState([]);
+  const [, setCategories] = useState([]); // using a "," skips the value and only keeps the setter.
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -187,7 +183,7 @@ export default function Home() {
 
                 {/* Pagination Component */}
                 <Pagination
-                  currentPage={page}
+                  currentPage={Number(page)}
                   totalPages={pages}
                   getFilterUrl={getFilterUrl}
                 />

@@ -7,7 +7,7 @@ import { useContext, useEffect, useState } from 'react';
 import { Store } from '../Store';
 import { getError } from '../utils';
 import axios from 'axios';
-import SearchBox from '../components/SearchBox';
+import SearchBox from './SearchBox';
 
 function Header() {
   const { state, dispatch: ctxDispatch } = useContext(Store);
@@ -91,14 +91,19 @@ function Header() {
 
               {/* Categories on mobile */}
               <NavDropdown
-                className='nav-categories' // hides categories in desktop
+                className='nav-categories'
                 title='Categories'
                 id='basic-nav-dropdown'
               >
                 <Nav className='flex-column p-2'>
                   {categories.map((category) => (
                     <Nav.Item key={category}>
-                      <LinkContainer to={`/search?category=${category}`}>
+                      <LinkContainer
+                        to={{
+                          pathname: '/search',
+                          search: `category=${category}`,
+                        }}
+                      >
                         <Nav.Link className='text-dark'>{category}</Nav.Link>
                       </LinkContainer>
                     </Nav.Item>
@@ -141,7 +146,6 @@ function Header() {
                     <NavDropdown.Item>Users</NavDropdown.Item>
                   </LinkContainer>
 
-                  {/* lesson 11 */}
                   {/* Orders link with badge */}
                   <LinkContainer to='/admin/orders'>
                     <NavDropdown.Item>

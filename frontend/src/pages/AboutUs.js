@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react'; // lesson 12
+import React, { useEffect, useState } from 'react';
 import { Row, Col, Card, Image } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
-import SkeletonAbout from '../components/skeletons/SkeletonAboutUs'; // lesson 12
+import SkeletonAbout from '../components/skeletons/SkeletonAboutUs';
 
 export default function About() {
-  // lesson 12
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -19,7 +18,6 @@ export default function About() {
   return (
     <>
       <div className='content'>
-        {/* lesson 12 */}
         {isLoading ? (
           <SkeletonAbout />
         ) : (

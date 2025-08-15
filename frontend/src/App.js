@@ -11,7 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 // admin pages
 import Dashboard from './pages/Dashboard';
-import Messages from './pages/Messages'; // lesson 11
+import Messages from './pages/Messages';
 import OrderList from './pages/OrderList';
 import ProductEdit from './pages/ProductEdit';
 import ProductList from './pages/ProductList';
@@ -22,7 +22,7 @@ import UserList from './pages/UserList';
 import AboutUs from './pages/AboutUs';
 import AskedQuestions from './pages/AskedQuestions';
 import Cart from './pages/Cart'; // step 1
-import Contact from './pages/Contact'; // lesson 11
+import Contact from './pages/Contact';
 import Design from './pages/Design';
 import ForgetPassword from './pages/ForgetPassword';
 import Gallery from './pages/Gallery';
@@ -51,7 +51,7 @@ function App() {
           <Route path='/about' element={<AboutUs />} />
           <Route path='/askedQuestions' element={<AskedQuestions />} />
           <Route path='/cart' element={<Cart />} />
-          <Route path='/contact' element={<Contact />} /> {/* lesson 11 */}
+          <Route path='/contact' element={<Contact />} />
           <Route path='/design' element={<Design />} />
           <Route path='/' element={<Home />} />
           <Route path='/gallery' element={<Gallery />} />
@@ -138,7 +138,6 @@ function App() {
               </AdminRoute>
             }
           />
-          {/* lesson 11 */}
           <Route
             path='/admin/messages'
             element={
